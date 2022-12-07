@@ -1,0 +1,1649 @@
+#:kivy 1.0
+
+WindowManager:
+    WindowSplash:
+    WindowLogin:
+    WindowHome:
+    WindowTC1:
+    WindowTC2:
+    WindowTC3:
+    WindowTesting:
+    WindowCalibration:
+    WindowDiagnostics:
+
+
+<MyButton@Button>
+    font_size : 14
+    size_hint : (0.1369, 0.0689)
+    font_name : 'DejaVuSans'
+
+    #*********Global Border*********
+    canvas.before :
+        Color:  
+            rgba: 1, 1, 1, 0
+        Line:
+            width: 0.5
+            rectangle: self.x, self.y, self.width, self.height
+
+<MyLabel@Label>
+    font_size : 14
+    size_hint : (0.1369, 0.0689)
+    font_name : 'DejaVuSans'
+
+<LabelH3@Label>
+    font_size : 12
+    size_hint : (0.4, 0.0689)
+    font_name : 'DejaVuSans'
+
+<TextInput>
+    font_size : 14
+    size_hint : (0.1369, 0.0689)
+    font_name : 'DejaVuSans'
+
+
+<WindowSplash>
+    name: "layout_splash"
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: 'res/img/Background.png'
+
+    Image:
+        source: 'res/img/splash.png'
+        size: self.texture_size
+
+    Label:
+        text: "UNIVERSAL INDICATOR"
+        font_size: 24
+        pos_hint: {'x': 0, 'y': -0.3}
+
+
+<WindowLogin>
+    name: "layout_login"
+
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: 'res/img/Background.png'
+
+    FloatLayout:
+        size: root.width, root.height
+        canvas.before :
+            Color:  
+                rgba: 1, 0, 0, 0
+            Line:
+                width: 0.5
+                rectangle: self.x, self.y, self.width, self.height
+
+        MyLabel:
+            font_size : 24
+            text: "LOGIN"
+            pos_hint: {"x":0.01369*30, "y":0.03448*26.5}
+            background_color: 1, 1, 1, 0
+            color: 1, 1, 1, 1
+        MyLabel:
+            text: "Username"
+            pos_hint: {"x": 0.01369*20, "y": 0.03448*20}
+        TextInput:
+            id: username
+            placeholder: "Username"
+            hint: "Username"
+            input_type: "text"
+            multiline: 0
+            pos_hint: {"x": 0.01369*30, "y": 0.03448*20}
+        MyLabel:
+            text: "Password"
+            pos_hint: {"x": 0.01369*20, "y": 0.03448*18}
+        TextInput:
+            id: password
+            placeholder: "Password"
+            input_type: "text"
+            multiline: 0
+            password: 1
+            pos_hint: {"x": 0.01369*30, "y": 0.03448*18}
+        MyButton:
+            text: "Login"
+            pos_hint: {"x": 0.01369*30, "y": 0.03448*16}
+            on_press: root.login()
+        MyLabel:
+            id: message
+            pos_hint: {"x": 0.01369*30, "y": 0.03448*14}
+            color: 1, 0, 0, 1
+
+
+<WindowHome>
+    name: "layout_home"
+
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: 'res/img/Background.png'
+
+    FloatLayout:
+        size: root.width, root.height
+        canvas.before :
+            Color:  
+                rgba: 1, 0, 0, 0
+            Line:
+                width: 0.5
+                rectangle: self.x, self.y, self.width, self.height
+
+        MyLabel:
+            id: calendar
+            font_size : 12
+            text: "DD-MM-YY"
+            pos_hint: {"x":0.01369*65, "y":0.03448*26.5}
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+
+        MyLabel :
+            id: clock
+            text: "HH:MM:SS"
+            font_size : 12
+            pos_hint : {"x":0.01369*65, "y":0.03448*27.5}
+            background_color :1, 1, 1, 0 
+            color : 1, 1, 1, 1
+        MyLabel :
+            text: "MANUAL OPERATION"
+            font_size : 26
+            #earlier X*14, now X*1
+            pos_hint : {"x":0.01369*1, "y":0.03448*27}
+            size_hint:0.01369*45, 0.03448*2
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+
+        MyButton :
+            font_size : 20
+            text: "Test Setup"
+            pos_hint : {"x":0.01369*1.5, "y":0.03448*1}
+            size_hint:0.01369*8, 0.03448*1
+            background_color :1, 1, 1, .1 
+            color : 1, 1, 1, 1
+            on_press: app.root.current = "layout_tc1"
+        MyButton :
+            font_size : 20
+            text: "Report"
+            pos_hint : {"x":0.01369*15, "y":0.03448*1}
+            size_hint:0.01369*8, 0.03448*1
+            background_color :1, 1, 1, 0 
+            color : 1, 1, 1, 1
+            on_press: app.root.current = "layout_testing"
+        MyButton :
+            font_size : 20
+            text: "Menu"
+            pos_hint : {"x":0.01369*29.5, "y":0.03448*1}
+            size_hint:0.01369*8, 0.03448*1
+            # on_press: app.root.current = "layout_menu"
+            on_press: app.root.current = "layout_calibration"
+            background_color :1, 1, 1, 0 
+            color : 1, 1, 1, 1
+        MyButton :
+            font_size : 20
+            text: "Exit"
+            pos_hint : {"x":0.01369*66, "y":0.03448*1}
+            size_hint:0.01369*8, 0.03448*0.5
+            background_color :1, 1, 1, 0   
+            color : 1, 1, 1, 1
+        MyButton :
+            id: label_displacement
+            font_size : 80
+            text: "123456.78"
+            pos_hint : {"x":0.01369*29, "y":0.03448*4}
+            size_hint:0.01369*18, 0.03448*8
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+        MyLabel :
+            text: "kg"
+            font_size : 12
+            pos_hint : {"x":0.01369*31, "y":0.03448*16}
+            size_hint:0.01369*45, 0.03448*2
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+        MyButton :
+            font_size : 22
+            text: "DISPLACEMENT"
+            pos_hint : {"x":0.01369*29, "y":0.03448*12}
+            size_hint:0.01369*18, 0.03448*2
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+        MyLabel :
+            text: "mm"
+            font_size : 12
+            pos_hint : {"x":0.01369*31, "y":0.03448*5}
+            size_hint:0.01369*46, 0.03448*2
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+
+        MyButton :
+            id: label_load
+            font_size : 80
+            text: "123456.78"
+            pos_hint : {"x":0.01369*29, "y":0.03448*15}
+            size_hint:0.01369*18, 0.03448*8
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+        MyButton :
+            font_size : 22
+            text: "LOAD"
+            pos_hint : {"x":0.01369*29, "y":0.03448*23}
+            size_hint:0.01369*18, 0.03448*2
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+
+        MyButton :
+            id: button_load_tare
+            font_size : 22
+            text: "TARE"
+            pos_hint : {"x":0.01369*50, "y":0.03448*19}
+            size_hint:0.01369*10, 0.03448*3
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+            on_press: root.load_tare()
+        MyButton :
+            id: button_displacement_tare
+            font_size : 22
+            text: "TARE"
+            pos_hint : {"x":0.01369*50, "y":0.03448*8}
+            size_hint:0.01369*10, 0.03448*3
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+            on_press: root.displacement_tare()
+        FloatLayout:
+            canvas.before :
+                Color:  
+                    rgba: 0, 0, 0, 0.05
+                Line:
+                    width: 5
+                    rectangle: self.x, self.y, self.width, self.height
+            size_hint: 0.01369*7, 0.03448*16.5
+    #     ******* Reduced 1 cell in X & Y for calucation for boundary thickness*********            
+            pos_hint: {"x": 0.01369*2, "y":0.03448*6.5}
+        MyLabel :
+            id: label_operate
+            font_size : 18
+            text: "OPERATE"
+            pos_hint : {"x":0.01369*2, "y":0.03448*23}
+            size_hint:0.01369*7, 0.03448*2
+            background_color :1, 1, 1, 1
+            color : 1, 1, 1, 1
+            # on_press: root.enable_operate_buttons(0)
+
+        Button :
+            canvas.before:
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+                    source: "res/img/Up.png"
+            size_hint_y: None
+            height: self.width
+            id: button_operate_up
+            font_size : 22
+            # text: "UP"
+
+            pos_hint : {"x":0.01369*3, "y":0.03448*19}
+            size_hint:0.01369*5, 0.03448*3.5
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+            on_press: print("Operate: UP")
+        Button :
+            canvas.before:
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+                    source: "res/img/Slow.png"
+            size_hint_y: None
+            height: self.width
+            id: button_operate_slow
+            font_size : 22
+            # text: "SLOW"
+            pos_hint : {"x":0.01369*3, "y":0.03448*15}
+            size_hint:0.01369*5, 0.03448*3.5
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+        Button :
+            canvas.before:
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+                    source: "res/img/Fast.png"
+            size_hint_y: None
+            height: self.width
+            id: button_operate_fast
+            font_size : 22
+            # text: "FAST"
+            pos_hint : {"x":0.01369*3, "y":0.03448*11}
+            size_hint:0.01369*5, 0.03448*3.5
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+        Button :
+            canvas.before:
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+                    source: "res/img/Down.png"
+            size_hint_y: None
+            height: self.width
+            id: button_operate_down
+            font_size : 22
+            # text: "DOWN"
+            pos_hint : {"x":0.01369*3, "y":0.03448*7}
+            size_hint:0.01369*5, 0.03448*3.5
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+
+
+<WindowTC1>
+    name: "layout_tc1"
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: 'res/img/Background.png'
+
+    FloatLayout:
+        size: root.width, root.height
+        canvas.before :
+            Color:  
+                rgba: 1, 0, 0, 0
+            Line:
+                width: 0.5
+                rectangle: self.x, self.y, self.width, self.height
+
+        MyLabel:
+            id: calendar
+            font_size : 12
+            text: "DD-MM-YY"
+            pos_hint: {"x":0.01369*65, "y":0.03448*26.5}
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+
+        MyLabel :
+            id: clock
+            text: "HH:MM:SS"
+            font_size : 12
+            pos_hint : {"x":0.01369*65, "y":0.03448*27.5}
+            background_color :1, 1, 1, 0 
+            color : 1, 1, 1, 1
+
+        FloatLayout:
+            size_hint: 1/3, 0.8
+            pos_hint: {'x': 0, 'y': 0.1}
+            canvas.before :
+                Color:  
+                    rgba: 0, 0, 0, .05
+                Line:
+                    width: 5
+                    rectangle: self.x, self.y, self.width, self.height
+            
+            LabelH3:
+                text: "TEST NUMBER"
+                pos_hint : {"x":0.05, "y":0.9}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+            LabelH3 :
+                text: "MACHINE NUMBER"
+                pos_hint : {"x":0.05, "y":0.8}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+                        
+            LabelH3:
+                text: "LOT NUMBER"
+                pos_hint : {"x":0.05, "y":0.7}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            LabelH3:
+                text: "INVOICE ID"
+                pos_hint : {"x":0.05, "y":0.6}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            LabelH3:
+                text: "REMARKS"
+                pos_hint : {"x":0.05, "y":0.5}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+            TextInput :
+                id: label_id
+                text: "001"
+                size_hint: 0.5, 0.07
+                pos_hint : {"x":0.45, "y":0.9}
+                background_color :1, 1, 1, 1
+                color : 1, 1, 1, 1
+            TextInput :
+                id: input_mid
+                hint_text: "Enter M/c ID"
+                input_type: "text"
+                multiline: 0
+                is_focusable: 1
+                keyboard:
+                on_cursor: root.enable_next_button()
+                size_hint: 0.5, 0.07
+                pos_hint : {"x":0.45, "y":0.8}
+                background_color :1, 1, 1, 1
+                color : 1, 1, 1, 1
+            TextInput:
+                id: input_lot
+                hint_text: "Enter Lot No"
+                input_type: "text"
+                multiline: 0
+                is_focusable: 1
+                keyboard:
+                on_cursor: root.enable_next_button()
+                size_hint: 0.5, 0.07
+                pos_hint : {"x":0.45, "y":0.7}
+                background_color :1, 1, 1, 1
+                color : 1, 1, 1, 1
+            TextInput :
+                id: input_iid
+                hint_text: "Enter INV ID"
+                input_type: "number"
+                multiline: 0
+                is_focusable: 1
+                keyboard:
+                on_cursor: root.enable_next_button()
+                size_hint: 0.5, 0.07
+                pos_hint : {"x":0.45, "y":0.6}
+                background_color :1, 1, 1, 1
+                color : 1, 1, 1, 1
+            TextInput:
+                id: input_remarks
+                hint_text: "Enter remarks"
+                input_type: "number"
+                multiline: 0
+                is_focusable: 1
+                keyboard:
+                size_hint: 0.5, 0.07
+                pos_hint : {"x":0.45, "y":0.5}
+                background_color :1, 1, 1, 1
+                color : 1, 1, 1, 1
+        
+        FloatLayout:
+            size_hint: 1/3, 0.8
+            pos_hint: {'x': 1/3, 'y': 0.1}
+            canvas.before :
+                Color:  
+                    rgba: 0, 0, 0, .05
+                Line:
+                    width: 5
+                    rectangle: self.x, self.y, self.width, self.height
+
+            LabelH3:
+                text: "CUSTOMER/VENDOR"
+                pos_hint : {"x":0.05, "y":0.9}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+                # on_text: root.customer_vendor_selection()
+            LabelH3:
+                text: "CODE"
+                pos_hint : {"x":0.05, "y":0.8}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            LabelH3:
+                text: "NAME"
+                pos_hint : {"x":0.05, "y":0.7}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Spinner :
+                id: spinner_main
+                text: "Select Customer/Vendor"
+                values: "Customer", "Vendor"
+                on_text: root.customer_vendor_selection()
+                size_hint: 0.54, 0.07
+                pos_hint : {"x":0.45, "y":0.9}
+                halign: 'center'
+                background_color :1, 1, 0, 0.3 
+                color : 1, 1, 1, 1
+            Spinner :
+                id: spinner_master
+                text: "Select Code"
+                on_text: root.code_selection()
+                size_hint: 0.54, 0.07
+                pos_hint : {"x":0.45, "y":0.8}
+                background_color :1, 1, 0, 0.3 
+                color : 1, 1, 1, 1
+            MyButton :
+                id: label_name
+                text: "Name"
+                size_hint: 0.54, 0.07
+                pos_hint : {"x":0.45, "y":0.7}
+                halign: 'center'
+                background_color :1, 1, 0, 0.3 
+                color : 1, 1, 1, 1
+
+        FloatLayout:
+            size_hint: 1/3, 0.8
+            pos_hint: {'x': 2/3, 'y': 0.1}
+            canvas.before :
+                Color:  
+                    rgba: 0, 0, 0, .05
+                Line:
+                    width: 5
+                    rectangle: self.x, self.y, self.width, self.height
+
+            LabelH3:
+                text: "CODE"
+                pos_hint : {"x":0.05, "y":0.9}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            LabelH3:
+                text: "NAME"
+                pos_hint : {"x":0.05, "y":0.8}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            LabelH3:
+                text: "DESCRIPTION"
+                pos_hint : {"x":0.05, "y":0.7}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            LabelH3:
+                text: "SIZE"
+                pos_hint : {"x":0.05, "y":0.6}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+            Spinner:
+                id: spinner_product_master
+                text: "Select Product"
+                size_hint: 0.5, 0.07
+                pos_hint : {"x":0.45, "y":0.9}
+                halign: 'center'
+                background_color :1, 1, 0, 0.3 
+                color : 1, 1, 1, 1
+                on_text: root.product_code_selection()
+                on_press: root.populate_material_spinner()
+            Label :
+                id: label_product_name
+                text: "Product name"
+                size_hint: 0.5, 0.07
+                pos_hint : {"x":0.45, "y":0.8}
+                background_color :1, 1, 0, 0.3 
+                color : 1, 1, 1, 1
+            Label:
+                id: label_product_description
+                text: "Product Description"
+                size_hint: 0.5, 0.07
+                pos_hint : {"x":0.45, "y":0.7}
+                halign: 'center'
+                background_color :1, 1, 0, 0.3 
+                color : 1, 1, 1, 1
+            Label:
+                id: label_product_size
+                text: "Size - Product"
+                size_hint: 0.5, 0.07
+                pos_hint : {"x":0.45, "y":0.6}
+                halign: 'center'
+                background_color :1, 1, 0, 0.3 
+                color : 1, 1, 1, 1
+
+            LabelH3:
+                text: "MIN LIMIT"
+                pos_hint : {"x":0.05, "y":0.5}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            
+            LabelH3:
+                # id: label_max
+                text: "MAX LIMIT"
+                pos_hint : {"x":0.05, "y":0.4}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3 
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Label:
+                id: label_product_min
+                text: "Min Limit - Product"
+                size_hint: 0.5, 0.07
+                pos_hint : {"x":0.45, "y":0.5}
+                halign: 'center'
+                background_color :1, 1, 0, 0.3 
+                color : 1, 1, 1, 1
+            
+            Label:
+                id: label_product_max
+                text: "Max Limit - Product"
+                size_hint: 0.5, 0.07
+                pos_hint : {"x":0.45, "y":0.4}
+                halign: 'center'
+                background_color :1, 1, 0, 0.3 
+                color : 1, 1, 1, 1 
+        
+        MyButton :
+            text: "HOME"
+            font_size : 20
+            pos_hint : {"x":0.01369*13, "y":0.03448*.1}
+            background_color :200/255, 200/255, 200/255, 0.3
+            on_press: app.root.current = "layout_home"
+            color : 1, 1, 1, 1
+        MyButton :
+            text: "EDIT"
+            font_size : 20
+            pos_hint : {"x":0.01369*25, "y":0.03448*.1}
+            background_color :200/255, 200/255, 200/255, 0.3
+            color : 1, 1, 1, 1
+        MyButton :
+            text: "SAVE"
+            font_size : 20
+            pos_hint : {"x":0.01369*37, "y":0.03448*.1}
+            background_color :200/255, 200/255, 200/255, 0.3
+            color : 1, 1, 1, 1
+            on_press: root.save_to_db()
+        MyButton :
+            text: "BACK"
+            font_size : 20
+            on_press: app.root.current = "layout_home"
+            pos_hint : {"x":0.01369*49, "y":0.03448*.1}
+            background_color :200/255, 200/255, 200/255, 0.3
+            color : 1, 1, 1, 1
+        MyButton :
+            text: "CONFIRM"
+            font_size : 20
+            #on_press: root.confirm()
+            on_press: app.root.current = "layout_testing"
+            pos_hint : {"x":0.01369*61, "y":0.03448*.1}
+            background_color :200/255, 200/255, 200/255, 0.3
+            color : 1, 1, 1, 1
+        MyButton:
+            background_color :0, 0, 0, 0
+        
+    
+    # ******* Reduced 1 cell in X & Y for calucation for boundary thickness*********            
+            pos_hint: {"x": 0.01369*13, "y":0.03448*4}
+
+        MyButton :
+            font_size : 20
+            text: "TEST CONFIGURATION"
+            pos_hint : {"x":0.01369*14, "y":0.03448*27}
+            size_hint:0.01369*45, 0.03448*2
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+
+
+<WindowTC2>
+    name: "layout_tc2"
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: 'res/img/Background.png'
+    FloatLayout:
+        size: root.width, root.height
+        canvas.before :
+            Color:  
+                rgba: 1, 0, 0, 1
+            Line:
+                width: 0.5
+                rectangle: self.x, self.y, self.width, self.height
+
+        MyLabel:
+            id: calendar
+            font_size : 12
+            text: "DD-MM-YY"
+            pos_hint: {"x":0.01369*65, "y":0.03448*26.5}
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+
+        MyLabel :
+            id: clock
+            text: "HH:MM:SS"
+            font_size : 12
+            pos_hint : {"x":0.01369*65, "y":0.03448*27.5}
+            background_color :1, 1, 1, 0 
+            color : 1, 1, 1, 1
+
+
+        MyLabel :
+            canvas.before :
+                Color:
+                    rgba: 1, 1, 0, 1
+                Line: 
+                    width: 3
+                    rectangle: self.x, self.y, self.width, self.height
+            
+            font_size : 22
+            text: "CUSTOMER"
+            pos_hint : {"x":0.01369, "y":0.03448*16}
+            size_hint:0.01369*10, 0.03448*3
+            background_color :5/255, 210/255, 255/255, 1
+            color : 1, 1, 1, 1
+        MyLabel :
+            font_size : 22
+            text: "PRODUCT"
+            pos_hint : {"x":0.01369, "y":0.03448*10}
+            size_hint:0.01369*10, 0.03448*3
+            background_color :5/255, 210/255, 255/255, 1
+            color : 1, 1, 1, 1
+        MyLabel :
+            font_size : 22
+            text: "TEST"
+            pos_hint : {"x":0.01369, "y":0.03448*22}
+            size_hint:0.01369*10, 0.03448*3
+            background_color :5/255, 210/255, 255/255, 1
+            color : 1, 1, 1, 1
+        MyLabel :
+            text: "CUSTOMER/VENDOR"
+            pos_hint : {"x":0.01369*14, "y":0.03448*23}
+            size_hint:0.01369*13, 0.03448*2
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+            # on_text: root.customer_vendor_selection()
+        MyLabel :
+            text: "CODE"
+            pos_hint : {"x":0.01369*14, "y":0.03448*19}
+            size_hint:0.01369*13, 0.03448*2
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        MyLabel :
+            text: "NAME"
+            pos_hint : {"x":0.01369*14, "y":0.03448*15}
+            size_hint:0.01369*13, 0.03448*2
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Spinner :
+            id: spinner_main
+            text: "Select Customer or Vendor"
+            values: "Customer", "Vendor"
+            on_text: root.customer_vendor_selection()
+            pos_hint : {"x":0.01369*31, "y":0.03448*23}
+            size_hint:0.01369*29, 0.03448*2
+            halign: 'center'
+            background_color :1, 1, 0, 0.3 
+            color : 1, 1, 1, 1
+        Spinner :
+            id: spinner_master
+            text: "Select Code"
+            on_text: root.code_selection()
+            pos_hint : {"x":0.01369*31, "y":0.03448*19}
+            size_hint:0.01369*29, 0.03448*2
+            background_color :1, 1, 0, 0.3 
+            color : 1, 1, 1, 1
+        MyButton :
+            id: label_name
+            text: "Name  - Vendor & customer"
+            pos_hint : {"x":0.01369*31, "y":0.03448*15}
+            size_hint:0.01369*29, 0.03448*2
+            halign: 'center'
+            background_color :1, 1, 0, 0.3 
+            color : 1, 1, 1, 1
+
+        MyButton :
+            text: "HOME"
+            font_size : 20
+            pos_hint : {"x":0.01369*13, "y":0.03448*.1}
+            background_color :200/255, 200/255, 200/255, 0.3
+            on_press: app.root.current = "layout_home"
+            color : 1, 1, 1, 1
+        MyButton :
+            text: "EDIT"
+            font_size : 20
+            pos_hint : {"x":0.01369*25, "y":0.03448*.1}
+            background_color :200/255, 200/255, 200/255, 0.3
+            color : 1, 1, 1, 1
+        MyButton :
+            text: "SAVE"
+            font_size : 20
+            pos_hint : {"x":0.01369*37, "y":0.03448*.1}
+            background_color :200/255, 200/255, 200/255, 0.3
+            color : 1, 1, 1, 1
+        MyButton :
+            text: "BACK"
+            font_size : 20
+            on_press: app.root.current = "layout_tc1"
+            pos_hint : {"x":0.01369*49, "y":0.03448*.1}
+            background_color :200/255, 200/255, 200/255, 0.3
+            color : 1, 1, 1, 1
+        MyButton :
+            text: "NEXT"
+            font_size : 20
+            on_press: app.root.current = "layout_tc3"
+            pos_hint : {"x":0.01369*61, "y":0.03448*.1}
+            background_color :200/255, 200/255, 200/255, 0.3
+            color : 1, 1, 1, 1
+    # ***** For Input Boundary for waveforms********
+        FloatLayout:
+            canvas.before :
+                Color:  
+                    rgba: 0, 0, 0, .05
+                Line:
+                    width: 5
+                    rectangle: self.x, self.y, self.width, self.height
+            size_hint: 0.01369*59, 0.03448*22
+    # ******* Reduced 1 cell in X & Y for calucation for boundary thickness*********            
+            pos_hint: {"x": 0.01369*13, "y":0.03448*4}
+
+        MyButton :
+            font_size : 20
+            text: "TEST CONFIGURATION"
+            pos_hint : {"x":0.01369*14, "y":0.03448*27}
+            size_hint:0.01369*45, 0.03448*2
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+
+
+<WindowTC3>
+    name: "layout_tc3"
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: 'res/img/Background.png'
+
+    FloatLayout:
+        size: root.width, root.height
+        canvas.before :
+            Color:  
+                rgba: 1, 0, 0, 1
+            Line:
+                width: 0.5
+                rectangle: self.x, self.y, self.width, self.height
+
+        MyLabel:
+            id: calendar
+            font_size : 12
+            text: "DD-MM-YY"
+            pos_hint: {"x":0.01369*65, "y":0.03448*26.5}
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+
+        MyLabel :
+            id: clock
+            text: "HH:MM:SS"
+            font_size : 12
+            pos_hint : {"x":0.01369*65, "y":0.03448*27.5}
+            background_color :1, 1, 1, 0 
+            color : 1, 1, 1, 1
+
+        MyButton :
+            font_size : 20
+            text: "TEST CONFIGURATION"
+            pos_hint : {"x":0.01369*14, "y":0.03448*27}
+            size_hint:0.01369*45, 0.03448*2
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+
+        MyLabel :
+            font_size : 22
+            text: "CUSTOMER"
+            pos_hint : {"x":0.01369, "y":0.03448*16}
+            size_hint:0.01369*10, 0.03448*3
+            background_color :5/255, 210/255, 255/255, 1
+            color : 1, 1, 1, 1
+
+        MyLabel :
+            canvas.before :
+                Color:
+                    rgba: 1, 1, 0, 1
+                Line: 
+                    width: 3
+                    rectangle: self.x, self.y, self.width, self.height
+            font_size : 22
+            text: "PRODUCT"
+            pos_hint : {"x":0.01369, "y":0.03448*10}
+            size_hint:0.01369*10, 0.03448*3
+            background_color :5/255, 210/255, 255/255, 1
+            color : 1, 1, 1, 1
+
+        MyLabel :
+            font_size : 22
+            text: "TEST"
+            pos_hint : {"x":0.01369, "y":0.03448*22}
+            size_hint:0.01369*10, 0.03448*3
+            background_color :5/255, 210/255, 255/255, 1
+            color : 1, 1, 1, 1
+        MyLabel :
+            text: "CODE"
+            pos_hint : {"x":0.01369*14, "y":0.03448*23}
+            size_hint:0.01369*13, 0.03448*2
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        MyLabel :
+            text: "NAME"
+            pos_hint : {"x":0.01369*14, "y":0.03448*19}
+            size_hint:0.01369*13, 0.03448*2
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        MyLabel :
+            text: "DESCRIPTION"
+            pos_hint : {"x":0.01369*14, "y":0.03448*15}
+            size_hint:0.01369*13, 0.03448*2
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        MyLabel :
+            text: "SIZE"
+            pos_hint : {"x":0.01369*14, "y":0.03448*11}
+            size_hint:0.01369*13, 0.03448*2
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        MyLabel :
+            text: "MIN LIMIT"
+            pos_hint : {"x":0.01369*14, "y":0.03448*7}
+            size_hint:0.01369*13, 0.03448*2
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
+
+
+        Spinner:
+            id: spinner_master
+            text: "Select Product"
+            pos_hint : {"x":0.01369*31, "y":0.03448*23}
+            size_hint:0.01369*29, 0.03448*2
+            halign: 'center'
+            background_color :1, 1, 0, 0.3 
+            color : 1, 1, 1, 1
+            on_text: root.code_selection()
+            on_press: root.populate_material_spinner()
+        Label :
+            id: label_name
+            text: "Product name"
+            pos_hint : {"x":0.01369*31, "y":0.03448*19}
+            size_hint:0.01369*29, 0.03448*2
+            background_color :1, 1, 0, 0.3 
+            color : 1, 1, 1, 1
+        Label:
+            id: label_description
+            text: "Product Description"
+            pos_hint : {"x":0.01369*31, "y":0.03448*15}
+            size_hint:0.01369*29, 0.03448*2
+            halign: 'center'
+            background_color :1, 1, 0, 0.3 
+            color : 1, 1, 1, 1
+        Label:
+            id: label_min
+            text: "Max Limit - Product"
+            pos_hint : {"x":0.01369*27, "y":0.03448*7}
+            size_hint:0.01369*13, 0.03448*2
+            halign: 'center'
+            background_color :1, 1, 0, 0.3 
+            color : 1, 1, 1, 1
+         
+        MyLabel:
+            # id: label_max
+            text: "MAX LIMIT"
+            pos_hint : {"x":0.01369*45, "y":0.03448*7}
+            size_hint:0.01369*13, 0.03448*2
+            halign: 'center'
+            background_color :182, 182, 182, 0.3 
+            canvas.before:
+                Color:
+                    rgba: self.background_color
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        Label:
+            id: label_size
+            text: "Size - Product"
+            pos_hint : {"x":0.01369*31, "y":0.03448*11}
+            size_hint:0.01369*29, 0.03448*2
+            halign: 'center'
+            background_color :1, 1, 0, 0.3 
+            color : 1, 1, 1, 1
+        Label:
+            id: label_max
+            text: "Max Limit - Product"
+            pos_hint : {"x":0.01369*58  , "y":0.03448*7}
+            size_hint:0.01369*13, 0.03448*2
+            halign: 'center'
+            background_color :1, 1, 0, 0.3 
+            color : 1, 1, 1, 1 
+
+
+        MyButton :
+            text: "HOME"
+            font_size : 20
+            pos_hint : {"x":0.01369*13, "y":0.03448*.1}
+            background_color :200/255, 200/255, 200/255, 0.3
+            on_press: app.root.current = "layout_tc2"
+            color : 1, 1, 1, 1
+        MyButton :
+            text: "EDIT"
+            font_size : 20
+            pos_hint : {"x":0.01369*25, "y":0.03448*.1}
+            background_color :200/255, 200/255, 200/255, 0.3
+            color : 1, 1, 1, 1
+        MyButton :
+            text: "SAVE"
+            font_size : 20
+            pos_hint : {"x":0.01369*37, "y":0.03448*.1}
+            background_color :200/255, 200/255, 200/255, 0.3
+            color : 1, 1, 1, 1
+        MyButton :
+            text: "BACK"
+            font_size : 20
+            on_press: app.root.current = "layout_tc2"
+            pos_hint : {"x":0.01369*49, "y":0.03448*.1}
+            background_color :200/255, 200/255, 200/255, 0.3
+            color : 1, 1, 1, 1
+        MyButton :
+            text: "CONFIRM"
+            font_size : 20
+            on_press: root.confirm()
+            #app.root.current = "layout_test"
+            pos_hint : {"x":0.01369*61, "y":0.03448*.1}
+            background_color :200/255, 200/255, 200/255, 0.3
+            color : 1, 1, 1, 1
+            
+    # ***** For Input Boundary for waveforms********
+        FloatLayout:
+            canvas.before :
+                Color:  
+                    rgba: 0, 0, 0, .05
+                Line:
+                    width: 5
+                    rectangle: self.x, self.y, self.width, self.height
+            size_hint: 0.01369*59, 0.03448*22
+    # ******* Reduced 1 cell in X & Y for calucation for boundary thickness*********            
+            pos_hint: {"x": 0.01369*13, "y":0.03448*4}
+
+
+<WindowTesting>
+    name: "layout_testing"
+    
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: 'res/img/Background-plane.png'
+    
+    FloatLayout:
+        size: root.width, root.height
+        canvas.before :
+            Color:  
+                rgba: 1, 1, 1, 1
+            Line:
+                width: 0.5
+                rectangle: self.x, self.y, self.width, self.height
+
+        MyButton:
+            id: calendar
+            canvas.before :
+                Color:  
+                    rgba: 0, 1, 0, 0.4
+                #********* Border Trial********
+                Line:
+                    width: .1
+                    rectangle: self.x, self.y, self.width, self.height
+            font_size : 20
+            text: "DD-MM-YY"
+            pos_hint: {"x":0, "top":1}
+            background_color :0, 1, 0, 0
+            color : 1, 1, 1, 1
+
+        MyButton :
+            id: clock
+            text: "HH:MM:SS"
+            font_size : 20
+            pos_hint : {"x":1-0.1369, "top":1}
+            background_color :1, 1, 1, 0 
+            color : 1, 1, 1, 1
+        MyButton :
+            text: "TESTING"
+            font_size : 22
+            pos_hint : {"x":0.01369*14, "y":0.03448*27}
+            size_hint:0.01369*45, 0.03448*2
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+
+        FloatLayout:
+            canvas.before :
+                Color:  
+                    rgba: 0, 0, 1, 0.05
+                Line:
+                    width: 1
+                    rectangle: self.x, self.y, self.width, self.height
+            id: graph
+            keyboard: 0
+            size_hint: 0.01369*56, 0.03448*26
+            pos_hint: {"x":0.01369*2, "y":0.03448*3}
+        Graph:
+            id: graph_test
+            xlabel:'displacement'
+            ylabel:'load'
+            x_ticks_minor:5
+            x_tics_major:25
+            y_ticks_major:1
+            y_grid_label:False
+            x_grid_label:False
+            padding:5
+            x_grid:True
+            y_grid:True
+            xmin:-0
+            xmax:100
+            ymin:-1
+            ymax:1
+            pos_hint: {"x":0.01369*2, "y":0.03448*2}
+            size_hint: 0.01369*56, 0.03448*25
+        Label:  
+            text: "LOAD (kg)"
+            font_size : 12
+            pos_hint : {"x":0.01369*60, "y":0.03448*25}
+            size_hint:0.01369*10, 0.03448*1
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+        Label:
+            id: label_load
+            font_size : 24
+            text: "12345"
+            pos_hint : {"x":0.01369*60, "y":0.03448*22}
+            size_hint:0.01369*10, 0.03448*3
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+        Label:
+            text: "DISPLACEMENT (mm)"
+            font_size : 12
+            pos_hint : {"x":0.01369*60, "y":0.03448*19}
+            size_hint:0.01369*10, 0.03448*1
+            background_color :1, 0, 0, 0
+            color : 1, 1, 1, 1
+        Label:
+            id: label_displacement
+            text: "12345"
+            font_size : 24
+            pos_hint : {"x":0.01369*60, "y":0.03448*16}
+            size_hint:0.01369*10, 0.03448*3
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+        Button :
+            id: button_graph_control
+            text: "START"
+            on_press: root.control_graph()
+            font_size : 24
+            pos_hint : {"x":0.01369*60, "y":0.03448*10}
+            size_hint:0.01369*10, 0.03448*3
+            background_color :0.5, 0.5, 0.5, 0.3
+            color : 1, 1, 1, 1
+        Button :
+            text: "RESET"
+            font_size : 24
+            pos_hint : {"x":0.01369*60, "y":0.03448*6}
+            size_hint:0.01369*10, 0.03448*3
+            background_color :1, 1, 1, 0
+            background_color :0.5, 0.5, 0.5, 0.3
+            color : 1, 1, 1, 1
+            on_press: root.reset_graph()
+        Button :
+            text: "HOME"
+            font_size : 24
+            pos_hint : {"x":0.01369*60, "y":0.03448*2}
+            size_hint:0.01369*10, 0.03448*3
+            background_color :1, 1, 1, 0
+            background_color :0.5, 0.5, 0.5, 0.3
+            color : 1, 1, 1, 1
+            on_press: app.root.current = "layout_home"
+
+
+<WindowCalibration>
+    name: "layout_calibration"
+    
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: 'res/img/Background-plane.png'
+
+    FloatLayout:
+        size_hint: 1, 0.1
+        pos_hint: {'x': 0, 'y': 0}
+        canvas.before :
+            Color:  
+                rgba: 1, 1, 1, 1
+            Line:
+                width: 0.5
+                rectangle: self.x, self.y, self.width, self.height
+
+        Button:
+            text: "SAVE"
+            size_hint: 0.1, 0.8
+            pos_hint : {"x":0.2, "y":0.1}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            on_press: root.save_calibration_data()
+        Button:
+            text: "RESET"
+            size_hint: 0.1, 0.8
+            pos_hint : {"x":0.35, "y":0.1}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+        Button:
+            text: "DISCARD"
+            size_hint: 0.1, 0.8
+            pos_hint : {"x":0.5, "y":0.1}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+        Button:
+            text: "HOME"
+            size_hint: 0.1, 0.8
+            pos_hint : {"x":0.65, "y":0.1}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            on_press: app.root.current = "layout_home"
+        Button:
+            text: "BACK"
+            size_hint: 0.1, 0.8
+            pos_hint : {"x":0.8, "y":0.1}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            on_press: app.root.current = "layout_home"
+
+    FloatLayout:
+        size_hint: 1, 0.8
+        pos_hint: {'x': 0, 'y': 0.1}
+        canvas.before :
+            Color:  
+                rgba: 1, 1, 1, 1
+            Line:
+                width: 0.5
+                rectangle: self.x, self.y, self.width, self.height
+
+        FloatLayout:
+            size_hint: 0.2, 1
+            pos_hint: {'x': 0, 'y': 0}
+            canvas.before :
+                Color:  
+                    rgba: 1, 1, 1, 1
+                Line:
+                    width: 0.5
+                    rectangle: self.x, self.y, self.width, self.height
+
+            Button:
+                text: "DIAGNOSTIC"
+                size_hint: 0.8, 0.1
+                pos_hint : {"x":0.1, "y":0.70}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                on_press: app.root.current = "layout_diagnostics"
+            Button:
+                canvas.before :
+                    Color:  
+                        rgba: 0, 1, 1, 1
+                    Line:
+                        width: 1
+                        rectangle: self.x, self.y, self.width, self.height
+                text: "CALIBRATION"
+                size_hint: 0.8, 0.1
+                pos_hint : {"x":0.1, "y":0.55}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+            Button:
+                text: "REPORT"
+                size_hint: 0.8, 0.1
+                pos_hint : {"x":0.1, "y":0.4}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+            Button:
+                text: "SETTING"
+                size_hint: 0.8, 0.1
+                pos_hint : {"x":0.1, "y":0.25}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+            Button:
+                text: "LOGIN"
+                size_hint: 0.8, 0.1
+                pos_hint : {"x":0.1, "y":0.1}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+
+        FloatLayout:
+            size_hint: 0.8, 1
+            pos_hint: {'x': 0.2, 'y': 0}
+            canvas.before :
+                Color:  
+                    rgba: 1, 1, 1, 1
+                Line:
+                    width: 0.5
+                    rectangle: self.x, self.y, self.width, self.height
+                    rectangle: self.x, self.y, self.width/2, self.height
+
+            Label:
+                text: "LOAD CELL"
+                size_hint: 0.4, 0.1
+                pos_hint : {"x":0.05, "y":0.9}
+                font_size: 24
+            Label:
+                text: "RAW ADC"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.05, "y":0.8}
+            Label:
+                text: "DECIMAL POINT"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.05, "y":0.7}
+            Label:
+                text: "RESOLUTION"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.05, "y":0.6}
+            Label:
+                text: "MAX CAPACITY"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.05, "y":0.5}
+            Label:
+                text: "CAL CAPACITY"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.05, "y":0.4}
+            Button:
+                text: "CAL ZERO"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.05, "y":0.1}
+                on_press: root.do_calibration(root.channel1, root.process_cal)
+            Label:
+                id: ch1_raw_adc
+                text: "1234"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.275, "y":0.8}
+            TextInput:
+                id: ch1_decimal_point
+                hint_text: "0, 1, 2, 3"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.275, "y":0.7}
+                input_type: "number"
+                multiline: 0
+            TextInput:
+                id: ch1_resolution
+                hint_text: "resolution"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.275, "y":0.6}
+                input_type: "number"
+                multiline: 0
+            TextInput:
+                id: ch1_max_capacity
+                hint_text: "max capacity"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.275, "y":0.5}
+                input_type: "number"
+                multiline: 0
+            TextInput:
+                id: ch1_cal_capacity
+                hint_text: "cal capacity"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.275, "y":0.4}
+                input_type: "number"
+                multiline: 0
+            Button:
+                text: "CAL SPAN"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.275, "y":0.1}
+                on_press: root.do_calibration(root.channel1, root.process_span)
+
+            Label:
+                text: "DISPLACEMENT ENCODER"
+                size_hint: 0.4, 0.1
+                pos_hint : {"x":0.55, "y":0.9}
+                font_size: 24
+            Label:
+                text: "RAW ADC"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.55, "y":0.8}
+            Label:
+                text: "STEPS/ROTATION"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.55, "y":0.7}
+            Label:
+                text: "LENGTH/ROTATION"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.55, "y":0.6}
+            Label:
+                text: "MAX LENGTH"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.55, "y":0.5}
+            # Button:
+            #     text: "CAL ZERO"
+            #     size_hint: 0.175, 0.1
+            #     pos_hint : {"x":0.55, "y":0.1}
+            #     on_press: root.do_calibration(root.channel3, root.process_cal)
+
+            Label:
+                id: ch3_raw_adc
+                text: "1234"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.775, "y":0.8}
+            TextInput:
+                id: ch3_cal_span
+                hint_text: "cal span"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.775, "y":0.7}
+                input_type: "number"
+                multiline: 0
+            TextInput:
+                id: ch3_cal_capacity
+                hint_text: "cal capacity"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.775, "y":0.6}
+                input_type: "number"
+                multiline: 0
+            TextInput:
+                id: ch3_max_capacity
+                hint_text: "max capacity"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.775, "y":0.5}
+                input_type: "number"
+                multiline: 0
+
+    FloatLayout:
+        size_hint: 1, 0.1
+        pos_hint: {'x': 0, 'y': 0.9}
+        canvas.before :
+            Color:  
+                rgba: 1, 1, 1, 1
+            Line:
+                width: 0.5
+                rectangle: self.x, self.y, self.width, self.height
+
+        # Label:
+        #     id: calendar
+        #     size_hint: 0.1, 0.8
+        #     pos_hint: {'x': 0.05, 'y': 0.1}
+        #     text: "dd/mm/yyyy"
+        Label:
+            size_hint: 0.4, 0.8
+            pos_hint: {'x': 0.3, 'y': 0.1}
+            text: "MENU"
+            font_size: 28
+        # Label:
+        #     id: clock
+        #     size_hint: 0.1, 0.8
+        #     pos_hint: {'x': 0.85, 'y': 0.1}
+        #     text: "hh:mm:ss"
+    
+
+<WindowDiagnostics>
+    name: "layout_diagnostics"
+    
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: 'res/img/Background-plane.png'
+
+    FloatLayout:
+        size_hint: 1, 1
+        pos_hint: {'x': 0, 'y': 0}
+        canvas.before :
+            Color:  
+                rgba: 1, 1, 1, 1
+            Line:
+                width: 0.5
+                rectangle: self.x, self.y, self.width, self.height
+
+        Label:
+            text: "LOAD CELL"
+            font_size: 24
+            size_hint: 0.4, 0.1
+            pos_hint : {"x":0.2, "y":0.9}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+        Label:
+            text: "Encoder"
+            font_size: 24
+            size_hint: 0.4, 0.1
+            pos_hint : {"x":0.2, "y":0.7}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+        Label:
+            id: ch1_raw_adc
+            text: "1234"
+            font_size: 24
+            size_hint: 0.4, 0.1
+            pos_hint : {"x":0.4, "y":0.9}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+        Label:
+            id: ch3_raw_adc
+            text: "1234"
+            font_size: 24
+            size_hint: 0.4, 0.1
+            pos_hint : {"x":0.4, "y":0.7}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+        Label:
+            id: ch1_value
+            text: "1234"
+            font_size: 24
+            size_hint: 0.4, 0.1
+            pos_hint : {"x":0.6, "y":0.9}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+        Label:
+            id: ch3_value
+            text: "1234"
+            font_size: 24
+            size_hint: 0.4, 0.1
+            pos_hint : {"x":0.6, "y":0.7}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+        Button:
+            text: "Home"
+            size_hint: 0.4, 0.1
+            pos_hint : {"x":0.3, "y":0.1}
+            on_press: app.root.current = "layout_home"

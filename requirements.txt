@@ -1,0 +1,5 @@
+Kivy==2.0.0
+Kivy-Garden==0.1.5
+Pillow==5.4.1
+matplotlib==3.2.2
+kivy_garden.graph==0.4.0
