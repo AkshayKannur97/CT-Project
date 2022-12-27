@@ -37,8 +37,21 @@ def update_calibration_for_channel(channel, **kwargs):
     conn.commit()
 
 
-if __name__ == '__main__':
-    update_calibration_for_channel('ch12', decimals=34, resolution=45)
-    fetch_calibration_for_channel('ch12')
-    # fetch_calibration_for_channel('ch2')
+def update_test_paths(test_id, **kwargs):
+    conn = sqlite3.connect('./data.db')
+    cur = conn.cursor()
+    for col in kwargs.keys():
+        sql = f''' UPDATE Tests SET "{col}" = ? WHERE id = ? '''
+        try:
+            cur.execute(sql, (kwargs[col], test_id))
+            print(sql)
+        except sqlite3.OperationalError:
+            pass
+    conn.commit()
 
+
+if __name__ == '__main__':
+    # update_calibration_for_channel('ch12', decimals=34, resolution=45)
+    # fetch_calibration_for_channel('ch12')
+    # fetch_calibration_for_channel('ch2')
+    update_test_paths('002', pdf_path='/tmp/098475364.png')

@@ -15,6 +15,10 @@ BOARD = 2
 LOW = 0
 HIGH = 1
 
+""" GPIO input/output mode """
+IN = 0
+OUT = 1
+
 
 """ Sets pin reference method """
 def setmode(*args):

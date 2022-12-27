@@ -1,4 +1,4 @@
-#:kivy 1.0
+#:kivy 2.0.0
 
 WindowManager:
     WindowSplash:
@@ -8,8 +8,12 @@ WindowManager:
     WindowTC2:
     WindowTC3:
     WindowTesting:
+    WindowOutput:
     WindowCalibration:
     WindowDiagnostics:
+    WindowCustomerEntry:
+    WindowProductEntry:
+    WindowTrial:
 
 
 <MyButton@Button>
@@ -150,14 +154,14 @@ WindowManager:
             text: "MANUAL OPERATION"
             font_size : 26
             #earlier X*14, now X*1
-            pos_hint : {"x":0.01369*1, "y":0.03448*27}
-            size_hint:0.01369*45, 0.03448*2
+            pos_hint : {"x":0.01369*25, "y":0.03448*27}
+            size_hint:0.01369*20, 0.03448*2
             background_color :1, 1, 1, 0
             color : 1, 1, 1, 1
 
         MyButton :
             font_size : 20
-            text: "Test Setup"
+            text: "Auto"
             pos_hint : {"x":0.01369*1.5, "y":0.03448*1}
             size_hint:0.01369*8, 0.03448*1
             background_color :1, 1, 1, .1 
@@ -165,12 +169,12 @@ WindowManager:
             on_press: app.root.current = "layout_tc1"
         MyButton :
             font_size : 20
-            text: "Report"
+            text: "Tests"
             pos_hint : {"x":0.01369*15, "y":0.03448*1}
             size_hint:0.01369*8, 0.03448*1
             background_color :1, 1, 1, 0 
             color : 1, 1, 1, 1
-            on_press: app.root.current = "layout_testing"
+            on_press: app.root.current = "layout_trial"
         MyButton :
             font_size : 20
             text: "Menu"
@@ -187,6 +191,7 @@ WindowManager:
             size_hint:0.01369*8, 0.03448*0.5
             background_color :1, 1, 1, 0   
             color : 1, 1, 1, 1
+            on_press: app.stop()
         MyButton :
             id: label_displacement
             font_size : 80
@@ -197,7 +202,7 @@ WindowManager:
             color : 1, 1, 1, 1
         MyLabel :
             text: "kg"
-            font_size : 12
+            font_size : 14
             pos_hint : {"x":0.01369*31, "y":0.03448*16}
             size_hint:0.01369*45, 0.03448*2
             background_color :1, 1, 1, 0
@@ -211,7 +216,7 @@ WindowManager:
             color : 1, 1, 1, 1
         MyLabel :
             text: "mm"
-            font_size : 12
+            font_size : 14
             pos_hint : {"x":0.01369*31, "y":0.03448*5}
             size_hint:0.01369*46, 0.03448*2
             background_color :1, 1, 1, 0
@@ -234,19 +239,31 @@ WindowManager:
             color : 1, 1, 1, 1
 
         MyButton :
+            canvas.before :
+                Color:  
+                    rgba: 1, 1, 1, 1
+                Line:
+                    width: 0.5
+                    rectangle: self.x, self.y, self.width, self.height
             id: button_load_tare
             font_size : 22
             text: "TARE"
-            pos_hint : {"x":0.01369*50, "y":0.03448*19}
+            pos_hint : {"x":0.01369*60, "y":0.03448*19}
             size_hint:0.01369*10, 0.03448*3
             background_color :1, 1, 1, 0
             color : 1, 1, 1, 1
             on_press: root.load_tare()
         MyButton :
+            canvas.before :
+                Color:  
+                    rgba: 1, 1, 1, 1
+                Line:
+                    width: 0.5
+                    rectangle: self.x, self.y, self.width, self.height
             id: button_displacement_tare
             font_size : 22
             text: "TARE"
-            pos_hint : {"x":0.01369*50, "y":0.03448*8}
+            pos_hint : {"x":0.01369*60, "y":0.03448*8}
             size_hint:0.01369*10, 0.03448*3
             background_color :1, 1, 1, 0
             color : 1, 1, 1, 1
@@ -279,7 +296,7 @@ WindowManager:
                     source: "res/img/Up.png"
             size_hint_y: None
             height: self.width
-            id: button_operate_up
+            # id: button_operate_up
             font_size : 22
             # text: "UP"
 
@@ -287,7 +304,9 @@ WindowManager:
             size_hint:0.01369*5, 0.03448*3.5
             background_color :1, 1, 1, 0
             color : 1, 1, 1, 1
-            on_press: print("Operate: UP")
+            on_press: app.actuate_gpio(app.GPIO_UP, 1)
+            on_release: app.actuate_gpio(app.GPIO_UP, 0)
+        
         Button :
             canvas.before:
                 Rectangle:
@@ -296,13 +315,16 @@ WindowManager:
                     source: "res/img/Slow.png"
             size_hint_y: None
             height: self.width
-            id: button_operate_slow
-            font_size : 22
+            # id: button_operate_slow
+            font_size: 22
             # text: "SLOW"
-            pos_hint : {"x":0.01369*3, "y":0.03448*15}
-            size_hint:0.01369*5, 0.03448*3.5
+            pos_hint: {"x":0.01369*3, "y":0.03448*15}
+            size_hint: 0.01369*5, 0.03448*3.5
             background_color :1, 1, 1, 0
-            color : 1, 1, 1, 1
+            color: 1, 1, 1, 1
+            on_press: app.actuate_gpio(app.GPIO_SLOW, 1)
+            on_release: app.actuate_gpio(app.GPIO_SLOW, 0)
+            
         Button :
             canvas.before:
                 Rectangle:
@@ -318,6 +340,8 @@ WindowManager:
             size_hint:0.01369*5, 0.03448*3.5
             background_color :1, 1, 1, 0
             color : 1, 1, 1, 1
+            on_press: app.actuate_gpio(app.GPIO_FAST, 1)
+            on_release: app.actuate_gpio(app.GPIO_FAST, 0)
         Button :
             canvas.before:
                 Rectangle:
@@ -333,7 +357,9 @@ WindowManager:
             size_hint:0.01369*5, 0.03448*3.5
             background_color :1, 1, 1, 0
             color : 1, 1, 1, 1
-
+            on_press: app.actuate_gpio(app.GPIO_DOWN, 1)
+            on_release: app.actuate_gpio(app.GPIO_DOWN, 0)
+       
 
 <WindowTC1>
     name: "layout_tc1"
@@ -369,8 +395,179 @@ WindowManager:
             color : 1, 1, 1, 1
 
         FloatLayout:
-            size_hint: 1/3, 0.8
+            size_hint: 1/2, 0.8
             pos_hint: {'x': 0, 'y': 0.1}
+            canvas.before :
+                Color:  
+                    rgba: 0, 0, 0, .05
+                Line:
+                    width: 5
+                    rectangle: self.x, self.y, self.width, self.height
+                    rectangle: self.x, 0.5, self.width, 0.5
+
+            FloatLayout:
+                size_hint: 1, 0.4
+                pos_hint: {'x': 0, 'y': 0.6}
+                canvas.before :
+                    Color:  
+                        rgba: 1, 1, 1, .5
+                    Line:
+                        width: 2
+                        rectangle: self.x, self.y, self.width, self.height
+            FloatLayout:
+                size_hint: 1, 0.3
+                pos_hint: {'x': 0, 'y': 0.2}
+                canvas.before :
+                    Color:  
+                        rgba: 1, 1, 1, .5
+                    Line:
+                        width: 2
+                        rectangle: self.x, self.y, self.width, self.height
+
+            Label:
+                text: "CUSTOMER / VENDOR DETAILS"
+                pos_hint: {'x': 0, 'y': 0.45}
+                font_size: 18
+            LabelH3:
+                text: "CUSTOMER/VENDOR"
+                pos_hint : {"x":0.05, "y":0.8}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+                # on_text: root.customer_vendor_selection()
+            LabelH3:
+                text: "CODE"
+                pos_hint : {"x":0.05, "y":0.7}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            LabelH3:
+                text: "NAME"
+                pos_hint : {"x":0.05, "y":0.6}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            Spinner :
+                id: spinner_main
+                text: "Select Customer/Vendor"
+                values: "Customer", "Vendor"
+                on_text: root.customer_vendor_selection()
+                size_hint: 0.54, 0.07
+                pos_hint : {"x":0.45, "y":0.8}
+                halign: 'center'
+                background_color :1, 1, 0, 0.3 
+                color : 1, 1, 1, 1
+            Spinner :
+                id: spinner_master
+                text: "Select Code"
+                on_text: root.code_selection()
+                size_hint: 0.54, 0.07
+                pos_hint : {"x":0.45, "y":0.7}
+                background_color :1, 1, 0, 0.3 
+                color : 1, 1, 1, 1
+            Label:
+                id: label_name
+                text: "Name"
+                size_hint: 0.54, 0.07
+                pos_hint : {"x":0.45, "y":0.6}
+                halign: 'center'
+                background_color :1, 1, 0, 0.3 
+                color : 1, 1, 1, 1
+
+            Label:
+                text: "PRODUCT DETAILS"
+                pos_hint: {'x': 0, 'y': -0.05}
+                font_size: 18
+
+            LabelH3:
+                text: "CODE"
+                pos_hint : {"x":0.05, "y":0.3}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            LabelH3:
+                text: "NAME"
+                pos_hint : {"x":0.05, "y":0.2}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            # LabelH3:
+            #     text: "DESCRIPTION"
+            #     pos_hint : {"x":0.05, "y":0.4}
+            #     halign: 'center'
+            #     background_color :182, 182, 182, 0.3
+            #     canvas.before:
+            #         Color:
+            #             rgba: self.background_color
+            #         Rectangle:
+            #             size: self.size
+            #             pos: self.pos
+            # LabelH3:
+            #     text: "SIZE"
+            #     pos_hint : {"x":0.05, "y":0.4}
+            #     halign: 'center'
+            #     background_color :182, 182, 182, 0.3
+            #     canvas.before:
+            #         Color:
+            #             rgba: self.background_color
+            #         Rectangle:
+            #             size: self.size
+            #             pos: self.pos
+
+            Spinner:
+                id: spinner_product_master
+                text: "Select Product"
+                size_hint: 0.5, 0.07
+                pos_hint : {"x":0.45, "y":0.3}
+                halign: 'center'
+                background_color :1, 1, 0, 0.3 
+                color : 1, 1, 1, 1
+                on_text: root.product_code_selection()
+                on_press: root.populate_material_spinner()
+            Label :
+                id: label_product_name
+                text: "Product name"
+                size_hint: 0.5, 0.07
+                pos_hint : {"x":0.45, "y":0.2}
+                background_color :1, 1, 0, 0.3 
+                color : 1, 1, 1, 1
+            # Label:
+            #     id: label_product_size
+            #     text: "Size - Product"
+            #     size_hint: 0.5, 0.06
+            #     pos_hint : {"x":0.45, "y":0.4}
+            #     halign: 'center'
+            #     background_color :1, 1, 0, 0.3 
+            #     color : 1, 1, 1, 1
+
+        FloatLayout:
+            size_hint: 1/2, 0.8
+            pos_hint: {'x': 1/2, 'y': 0.1}
             canvas.before :
                 Color:  
                     rgba: 0, 0, 0, .05
@@ -425,8 +622,19 @@ WindowManager:
                         size: self.size
                         pos: self.pos
             LabelH3:
-                text: "REMARKS"
+                text: "SIZE"
                 pos_hint : {"x":0.05, "y":0.5}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                canvas.before:
+                    Color:
+                        rgba: self.background_color
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+            LabelH3:
+                text: "REMARKS"
+                pos_hint : {"x":0.05, "y":0.4}
                 halign: 'center'
                 background_color :182, 182, 182, 0.3
                 canvas.before:
@@ -448,9 +656,8 @@ WindowManager:
                 hint_text: "Enter M/c ID"
                 input_type: "text"
                 multiline: 0
-                is_focusable: 1
-                keyboard:
-                on_cursor: root.enable_next_button()
+                # is_focusable: 1
+                # on_cursor: root.enable_next_button()
                 size_hint: 0.5, 0.07
                 pos_hint : {"x":0.45, "y":0.8}
                 background_color :1, 1, 1, 1
@@ -479,6 +686,13 @@ WindowManager:
                 pos_hint : {"x":0.45, "y":0.6}
                 background_color :1, 1, 1, 1
                 color : 1, 1, 1, 1
+            Label:
+                id: label_product_size
+                hint_text: "<size>"
+                size_hint: 0.5, 0.07
+                pos_hint : {"x":0.45, "y":0.5}
+                background_color :1, 1, 1, 1
+                color : 1, 1, 1, 1
             TextInput:
                 id: input_remarks
                 hint_text: "Enter remarks"
@@ -487,211 +701,140 @@ WindowManager:
                 is_focusable: 1
                 keyboard:
                 size_hint: 0.5, 0.07
-                pos_hint : {"x":0.45, "y":0.5}
+                pos_hint : {"x":0.45, "y":0.4}
                 background_color :1, 1, 1, 1
                 color : 1, 1, 1, 1
-        
-        FloatLayout:
-            size_hint: 1/3, 0.8
-            pos_hint: {'x': 1/3, 'y': 0.1}
-            canvas.before :
-                Color:  
-                    rgba: 0, 0, 0, .05
-                Line:
-                    width: 5
-                    rectangle: self.x, self.y, self.width, self.height
 
-            LabelH3:
-                text: "CUSTOMER/VENDOR"
-                pos_hint : {"x":0.05, "y":0.9}
-                halign: 'center'
-                background_color :182, 182, 182, 0.3
-                canvas.before:
-                    Color:
-                        rgba: self.background_color
-                    Rectangle:
-                        size: self.size
-                        pos: self.pos
-                # on_text: root.customer_vendor_selection()
-            LabelH3:
-                text: "CODE"
-                pos_hint : {"x":0.05, "y":0.8}
-                halign: 'center'
-                background_color :182, 182, 182, 0.3
-                canvas.before:
-                    Color:
-                        rgba: self.background_color
-                    Rectangle:
-                        size: self.size
-                        pos: self.pos
-            LabelH3:
-                text: "NAME"
-                pos_hint : {"x":0.05, "y":0.7}
-                halign: 'center'
-                background_color :182, 182, 182, 0.3
-                canvas.before:
-                    Color:
-                        rgba: self.background_color
-                    Rectangle:
-                        size: self.size
-                        pos: self.pos
-            Spinner :
-                id: spinner_main
-                text: "Select Customer/Vendor"
-                values: "Customer", "Vendor"
-                on_text: root.customer_vendor_selection()
-                size_hint: 0.54, 0.07
-                pos_hint : {"x":0.45, "y":0.9}
-                halign: 'center'
-                background_color :1, 1, 0, 0.3 
-                color : 1, 1, 1, 1
-            Spinner :
-                id: spinner_master
-                text: "Select Code"
-                on_text: root.code_selection()
-                size_hint: 0.54, 0.07
-                pos_hint : {"x":0.45, "y":0.8}
-                background_color :1, 1, 0, 0.3 
-                color : 1, 1, 1, 1
-            MyButton :
-                id: label_name
-                text: "Name"
-                size_hint: 0.54, 0.07
-                pos_hint : {"x":0.45, "y":0.7}
-                halign: 'center'
-                background_color :1, 1, 0, 0.3 
-                color : 1, 1, 1, 1
+        # FloatLayout:
+        #     size_hint: 1/2, 0.8
+        #     pos_hint: {'x': 1/2, 'y': 0.1}
+        #     canvas.before :
+        #         Color:  
+        #             rgba: 0, 0, 0, .05
+        #         Line:
+        #             width: 5
+        #             rectangle: self.x, self.y, self.width, self.height
 
-        FloatLayout:
-            size_hint: 1/3, 0.8
-            pos_hint: {'x': 2/3, 'y': 0.1}
-            canvas.before :
-                Color:  
-                    rgba: 0, 0, 0, .05
-                Line:
-                    width: 5
-                    rectangle: self.x, self.y, self.width, self.height
+        #     LabelH3:
+        #         text: "CODE"
+        #         pos_hint : {"x":0.05, "y":0.9}
+        #         halign: 'center'
+        #         background_color :182, 182, 182, 0.3
+        #         canvas.before:
+        #             Color:
+        #                 rgba: self.background_color
+        #             Rectangle:
+        #                 size: self.size
+        #                 pos: self.pos
+        #     LabelH3:
+        #         text: "NAME"
+        #         pos_hint : {"x":0.05, "y":0.8}
+        #         halign: 'center'
+        #         background_color :182, 182, 182, 0.3
+        #         canvas.before:
+        #             Color:
+        #                 rgba: self.background_color
+        #             Rectangle:
+        #                 size: self.size
+        #                 pos: self.pos
+        #     LabelH3:
+        #         text: "DESCRIPTION"
+        #         pos_hint : {"x":0.05, "y":0.7}
+        #         halign: 'center'
+        #         background_color :182, 182, 182, 0.3
+        #         canvas.before:
+        #             Color:
+        #                 rgba: self.background_color
+        #             Rectangle:
+        #                 size: self.size
+        #                 pos: self.pos
+        #     LabelH3:
+        #         text: "SIZE"
+        #         pos_hint : {"x":0.05, "y":0.6}
+        #         halign: 'center'
+        #         background_color :182, 182, 182, 0.3
+        #         canvas.before:
+        #             Color:
+        #                 rgba: self.background_color
+        #             Rectangle:
+        #                 size: self.size
+        #                 pos: self.pos
 
-            LabelH3:
-                text: "CODE"
-                pos_hint : {"x":0.05, "y":0.9}
-                halign: 'center'
-                background_color :182, 182, 182, 0.3
-                canvas.before:
-                    Color:
-                        rgba: self.background_color
-                    Rectangle:
-                        size: self.size
-                        pos: self.pos
-            LabelH3:
-                text: "NAME"
-                pos_hint : {"x":0.05, "y":0.8}
-                halign: 'center'
-                background_color :182, 182, 182, 0.3
-                canvas.before:
-                    Color:
-                        rgba: self.background_color
-                    Rectangle:
-                        size: self.size
-                        pos: self.pos
-            LabelH3:
-                text: "DESCRIPTION"
-                pos_hint : {"x":0.05, "y":0.7}
-                halign: 'center'
-                background_color :182, 182, 182, 0.3
-                canvas.before:
-                    Color:
-                        rgba: self.background_color
-                    Rectangle:
-                        size: self.size
-                        pos: self.pos
-            LabelH3:
-                text: "SIZE"
-                pos_hint : {"x":0.05, "y":0.6}
-                halign: 'center'
-                background_color :182, 182, 182, 0.3
-                canvas.before:
-                    Color:
-                        rgba: self.background_color
-                    Rectangle:
-                        size: self.size
-                        pos: self.pos
+        #     Spinner:
+        #         id: spinner_product_master
+        #         text: "Select Product"
+        #         size_hint: 0.5, 0.07
+        #         pos_hint : {"x":0.45, "y":0.9}
+        #         halign: 'center'
+        #         background_color :1, 1, 0, 0.3 
+        #         color : 1, 1, 1, 1
+        #         on_text: root.product_code_selection()
+        #         on_press: root.populate_material_spinner()
+        #     Label :
+        #         id: label_product_name
+        #         text: "Product name"
+        #         size_hint: 0.5, 0.07
+        #         pos_hint : {"x":0.45, "y":0.8}
+        #         background_color :1, 1, 0, 0.3 
+        #         color : 1, 1, 1, 1
+        #     Label:
+        #         id: label_product_description
+        #         text: "Product Description"
+        #         size_hint: 0.5, 0.07
+        #         pos_hint : {"x":0.45, "y":0.7}
+        #         halign: 'center'
+        #         background_color :1, 1, 0, 0.3 
+        #         color : 1, 1, 1, 1
+        #     Label:
+        #         id: label_product_size
+        #         text: "Size - Product"
+        #         size_hint: 0.5, 0.07
+        #         pos_hint : {"x":0.45, "y":0.6}
+        #         halign: 'center'
+        #         background_color :1, 1, 0, 0.3 
+        #         color : 1, 1, 1, 1
 
-            Spinner:
-                id: spinner_product_master
-                text: "Select Product"
-                size_hint: 0.5, 0.07
-                pos_hint : {"x":0.45, "y":0.9}
-                halign: 'center'
-                background_color :1, 1, 0, 0.3 
-                color : 1, 1, 1, 1
-                on_text: root.product_code_selection()
-                on_press: root.populate_material_spinner()
-            Label :
-                id: label_product_name
-                text: "Product name"
-                size_hint: 0.5, 0.07
-                pos_hint : {"x":0.45, "y":0.8}
-                background_color :1, 1, 0, 0.3 
-                color : 1, 1, 1, 1
-            Label:
-                id: label_product_description
-                text: "Product Description"
-                size_hint: 0.5, 0.07
-                pos_hint : {"x":0.45, "y":0.7}
-                halign: 'center'
-                background_color :1, 1, 0, 0.3 
-                color : 1, 1, 1, 1
-            Label:
-                id: label_product_size
-                text: "Size - Product"
-                size_hint: 0.5, 0.07
-                pos_hint : {"x":0.45, "y":0.6}
-                halign: 'center'
-                background_color :1, 1, 0, 0.3 
-                color : 1, 1, 1, 1
-
-            LabelH3:
-                text: "MIN LIMIT"
-                pos_hint : {"x":0.05, "y":0.5}
-                halign: 'center'
-                background_color :182, 182, 182, 0.3
-                canvas.before:
-                    Color:
-                        rgba: self.background_color
-                    Rectangle:
-                        size: self.size
-                        pos: self.pos
+        #     LabelH3:
+        #         text: "MIN LIMIT"
+        #         pos_hint : {"x":0.05, "y":0.5}
+        #         halign: 'center'
+        #         background_color :182, 182, 182, 0.3
+        #         canvas.before:
+        #             Color:
+        #                 rgba: self.background_color
+        #             Rectangle:
+        #                 size: self.size
+        #                 pos: self.pos
             
-            LabelH3:
-                # id: label_max
-                text: "MAX LIMIT"
-                pos_hint : {"x":0.05, "y":0.4}
-                halign: 'center'
-                background_color :182, 182, 182, 0.3 
-                canvas.before:
-                    Color:
-                        rgba: self.background_color
-                    Rectangle:
-                        size: self.size
-                        pos: self.pos
-            Label:
-                id: label_product_min
-                text: "Min Limit - Product"
-                size_hint: 0.5, 0.07
-                pos_hint : {"x":0.45, "y":0.5}
-                halign: 'center'
-                background_color :1, 1, 0, 0.3 
-                color : 1, 1, 1, 1
+        #     LabelH3:
+        #         # id: label_max
+        #         text: "MAX LIMIT"
+        #         pos_hint : {"x":0.05, "y":0.4}
+        #         halign: 'center'
+        #         background_color :182, 182, 182, 0.3 
+        #         canvas.before:
+        #             Color:
+        #                 rgba: self.background_color
+        #             Rectangle:
+        #                 size: self.size
+        #                 pos: self.pos
+        #     Label:
+        #         id: label_product_min
+        #         text: "Min Limit - Product"
+        #         size_hint: 0.5, 0.07
+        #         pos_hint : {"x":0.45, "y":0.5}
+        #         halign: 'center'
+        #         background_color :1, 1, 0, 0.3 
+        #         color : 1, 1, 1, 1
             
-            Label:
-                id: label_product_max
-                text: "Max Limit - Product"
-                size_hint: 0.5, 0.07
-                pos_hint : {"x":0.45, "y":0.4}
-                halign: 'center'
-                background_color :1, 1, 0, 0.3 
-                color : 1, 1, 1, 1 
+        #     Label:
+        #         id: label_product_max
+        #         text: "Max Limit - Product"
+        #         size_hint: 0.5, 0.07
+        #         pos_hint : {"x":0.45, "y":0.4}
+        #         halign: 'center'
+        #         background_color :1, 1, 0, 0.3 
+        #         color : 1, 1, 1, 1 
         
         MyButton :
             text: "HOME"
@@ -700,31 +843,32 @@ WindowManager:
             background_color :200/255, 200/255, 200/255, 0.3
             on_press: app.root.current = "layout_home"
             color : 1, 1, 1, 1
+        # MyButton :
+        #     text: "EDIT"
+        #     font_size : 20
+        #     pos_hint : {"x":0.01369*25, "y":0.03448*.1}
+        #     background_color :200/255, 200/255, 200/255, 0.3
+        #     color : 1, 1, 1, 1
+        # MyButton :
+        #     text: "SAVE"
+        #     font_size : 20
+        #     pos_hint : {"x":0.01369*37, "y":0.03448*.1}
+        #     background_color :200/255, 200/255, 200/255, 0.3
+        #     color : 1, 1, 1, 1
+        #     on_press: root.save_to_db()
+        # MyButton :
+        #     text: "BACK"
+        #     font_size : 20
+        #     on_press: app.root.current = "layout_home"
+        #     pos_hint : {"x":0.01369*49, "y":0.03448*.1}
+        #     background_color :200/255, 200/255, 200/255, 0.3
+        #     color : 1, 1, 1, 1
         MyButton :
-            text: "EDIT"
-            font_size : 20
-            pos_hint : {"x":0.01369*25, "y":0.03448*.1}
-            background_color :200/255, 200/255, 200/255, 0.3
-            color : 1, 1, 1, 1
-        MyButton :
-            text: "SAVE"
-            font_size : 20
-            pos_hint : {"x":0.01369*37, "y":0.03448*.1}
-            background_color :200/255, 200/255, 200/255, 0.3
-            color : 1, 1, 1, 1
-            on_press: root.save_to_db()
-        MyButton :
-            text: "BACK"
-            font_size : 20
-            on_press: app.root.current = "layout_home"
-            pos_hint : {"x":0.01369*49, "y":0.03448*.1}
-            background_color :200/255, 200/255, 200/255, 0.3
-            color : 1, 1, 1, 1
-        MyButton :
-            text: "CONFIRM"
+            text: "START"
             font_size : 20
             #on_press: root.confirm()
-            on_press: app.root.current = "layout_testing"
+            on_press: root.manager.get_screen("layout_testing").control_graph()
+            on_release: root.submit()
             pos_hint : {"x":0.01369*61, "y":0.03448*.1}
             background_color :200/255, 200/255, 200/255, 0.3
             color : 1, 1, 1, 1
@@ -1210,7 +1354,7 @@ WindowManager:
             background_color :1, 1, 1, 0 
             color : 1, 1, 1, 1
         MyButton :
-            text: "TESTING"
+            text: "AUTO TESTING"
             font_size : 22
             pos_hint : {"x":0.01369*14, "y":0.03448*27}
             size_hint:0.01369*45, 0.03448*2
@@ -1230,20 +1374,22 @@ WindowManager:
             pos_hint: {"x":0.01369*2, "y":0.03448*3}
         Graph:
             id: graph_test
-            xlabel:'displacement'
-            ylabel:'load'
-            x_ticks_minor:5
-            x_tics_major:25
-            y_ticks_major:1
-            y_grid_label:False
-            x_grid_label:False
-            padding:5
-            x_grid:True
-            y_grid:True
-            xmin:-0
-            xmax:100
-            ymin:-1
-            ymax:1
+            xlabel: 'displacement'
+            ylabel: 'load'
+            # background_color: (1, 1, 1, 0.2)
+            # tick_color: (1,0,0,1)
+            # x_ticks_minor: 1
+            x_ticks_major: 100
+            y_ticks_major: 0.5
+            y_grid_label: True
+            x_grid_label: True
+            padding: 5
+            x_grid: True
+            y_grid: True
+            xmin: -0
+            xmax: 100
+            ymin: -1
+            ymax: 1
             pos_hint: {"x":0.01369*2, "y":0.03448*2}
             size_hint: 0.01369*56, 0.03448*25
         Label:  
@@ -1295,6 +1441,7 @@ WindowManager:
             color : 1, 1, 1, 1
             on_press: root.reset_graph()
         Button :
+            id: button_home
             text: "HOME"
             font_size : 24
             pos_hint : {"x":0.01369*60, "y":0.03448*2}
@@ -1303,6 +1450,251 @@ WindowManager:
             background_color :0.5, 0.5, 0.5, 0.3
             color : 1, 1, 1, 1
             on_press: app.root.current = "layout_home"
+
+<WindowOutput>
+    name: "layout_output"
+    
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: 'res/img/Background-plane.png'
+    
+    FloatLayout:
+        size: root.width, root.height
+        canvas.before :
+            Color:  
+                rgba: 1, 1, 1, 1
+            Line:
+                width: 0.5
+                rectangle: self.x, self.y, self.width, self.height
+
+        MyButton:
+            id: calendar
+            canvas.before :
+                Color:  
+                    rgba: 0, 1, 0, 0.4
+                Line:
+                    width: .1
+                    rectangle: self.x, self.y, self.width, self.height
+            font_size : 20
+            text: "DD-MM-YY"
+            pos_hint: {"x":0, "top":1}
+            background_color :0, 1, 0, 0
+            color : 1, 1, 1, 1
+
+        MyButton :
+            id: clock
+            text: "HH:MM:SS"
+            font_size : 20
+            pos_hint : {"x":1-0.1369, "top":1}
+            background_color :1, 1, 1, 0 
+            color : 1, 1, 1, 1
+        MyButton :
+            text: " TEST OUTPUT"
+            font_size : 22
+            pos_hint : {"x":0.01369*14, "y":0.03448*27}
+            size_hint:0.01369*45, 0.03448*2
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+
+    Label:
+        pos_hint: {'x': 0, 'y': 0.8}
+        size_hint: 0.25, 0.1
+        text: "[u]Customer/Vendor Details[/u]"
+        markup: True
+        background_color: 1, 0, 1, 0.8
+    Label:
+        text: "Code"
+        pos_hint: {'x': 0, 'y': 0.75}
+        size_hint: 0.1, 0.1
+        halign: 'right'
+        text_size: self.size
+    Label:
+        id: label_customer_code
+        text: ""
+        pos_hint: {'x': 0.2, 'y': 0.75}
+        size_hint: 0.3, 0.1
+        background_color: 1, 1, 1, 0.5
+        halign: 'left'
+        text_size: self.size
+    Label:
+        text: "Name"
+        pos_hint: {'x': 0, 'y': 0.7}
+        size_hint: 0.1, 0.1
+        halign: 'right'
+        text_size: self.size
+    Label:
+        id: label_customer_name
+        text: ""
+        pos_hint: {'x': 0.2, 'y': 0.7}
+        size_hint: 0.3, 0.1
+        background_color: 1, 1, 1, 0.5
+        halign: 'left'
+        text_size: self.size
+
+    Label:
+        pos_hint: {'x': 0, 'y': 0.60}
+        size_hint: 0.25, 0.1
+        text: "[u]Product Details[/u]"
+        markup: True
+        background_color: 1, 0, 1, 0.8
+    Label:
+        text: "Code"
+        pos_hint: {'x': 0, 'y': 0.55}
+        size_hint: 0.1, 0.1
+        halign: 'right'
+        text_size: self.size
+    Label:
+        id: label_product_code
+        text: ""
+        pos_hint: {'x': 0.2, 'y': 0.55}
+        size_hint: 0.3, 0.1
+        background_color: 1, 1, 1, 0.5
+        halign: 'left'
+        text_size: self.size
+    Label:
+        text: "Name"
+        pos_hint: {'x': 0, 'y': 0.50}
+        size_hint: 0.1, 0.1
+        halign: 'right'
+        text_size: self.size
+    Label:
+        id: label_product_name
+        text: ""
+        pos_hint: {'x': 0.2, 'y': 0.50}
+        size_hint: 0.3, 0.1
+        background_color: 1, 1, 1, 0.5
+        halign: 'left'
+        text_size: self.size
+        
+    Label:
+        pos_hint: {'x': 0.6, 'y': 0.8}
+        size_hint: 0.25, 0.1
+        text: "[u]Test Details[/u]"
+        markup: True
+        background_color: 1, 0, 1, 0.8
+    Label:
+        text: "Machine Number"
+        pos_hint: {'x': 0.5, 'y': 0.75}
+        size_hint: 0.2, 0.1
+        halign: 'right'
+        text_size: self.size
+    Label:
+        id: label_mid
+        text: ""
+        pos_hint: {'x': 0.75, 'y': 0.75}
+        size_hint: 0.25, 0.1
+        background_color: 1, 1, 1, 0.5
+        halign: 'left'
+        text_size: self.size
+    Label:
+        text: "Date"
+        pos_hint: {'x': 0.5, 'y': 0.70}
+        size_hint: 0.2, 0.1
+        halign: 'right'
+        text_size: self.size
+    Label:
+        id: label_date
+        text: ""
+        pos_hint: {'x': 0.75, 'y': 0.70}
+        size_hint: 0.25, 0.1
+        background_color: 1, 1, 1, 0.5
+        halign: 'left'
+        text_size: self.size
+    Label:
+        text: "Time"
+        pos_hint: {'x': 0.5, 'y': 0.65}
+        size_hint: 0.2, 0.1
+        halign: 'right'
+        text_size: self.size
+    Label:
+        id: label_time
+        text: ""
+        pos_hint: {'x': 0.75, 'y': 0.65}
+        size_hint: 0.25, 0.1
+        background_color: 1, 1, 1, 0.5
+        halign: 'left'
+        text_size: self.size
+    Label:
+        text: "Lot Number"
+        pos_hint: {'x': 0.5, 'y': 0.60}
+        size_hint: 0.2, 0.1
+        halign: 'right'
+        text_size: self.size
+    Label:
+        id: label_lot
+        text: ""
+        pos_hint: {'x': 0.75, 'y': 0.60}
+        size_hint: 0.25, 0.1
+        background_color: 1, 1, 1, 0.5
+        halign: 'left'
+        text_size: self.size
+    Label:
+        text: "Test Number"
+        pos_hint: {'x': 0.5, 'y': 0.55}
+        size_hint: 0.2, 0.1
+        halign: 'right'
+        text_size: self.size
+    Label:
+        id: label_test
+        text: ""
+        pos_hint: {'x': 0.75, 'y': 0.55}
+        size_hint: 0.25, 0.1
+        background_color: 1, 1, 1, 0.5
+        halign: 'left'
+        text_size: self.size
+    Label:
+        text: "Invoice Number"
+        pos_hint: {'x': 0.5, 'y': 0.50}
+        size_hint: 0.2, 0.1
+        halign: 'right'
+        text_size: self.size
+    Label:
+        id: label_iid
+        text: ""
+        pos_hint: {'x': 0.75, 'y': 0.50}
+        size_hint: 0.25, 0.1
+        background_color: 1, 1, 1, 0.5
+        halign: 'left'
+        text_size: self.size
+
+    Button :
+        text: "HOME"
+        font_size : 24
+        pos_hint : {"x":0.5, "y":0.1}
+        size_hint:0.01369*10, 0.03448*3
+        background_color :1, 1, 1, 0
+        background_color :0.5, 0.5, 0.5, 0.3
+        color : 1, 1, 1, 1
+        on_press: app.root.current = "layout_home"
+    Button :
+        text: "SAVE [sub](PDF)[/sub]"
+        markup: True
+        font_size : 24
+        pos_hint : {"x":0.65, "y":0.1}
+        size_hint:0.01369*12, 0.03448*3
+        background_color :1, 1, 1, 0
+        background_color :0.5, 0.5, 0.5, 0.3
+        color : 1, 1, 1, 1
+        on_press: root.save_as_pdf()
+    # Button :
+    #     text: "SAVE [sub](EXCEL)[/sub]"
+    #     markup: True
+    #     font_size : 24
+    #     pos_hint : {"x":0.82, "y":0.1}
+    #     size_hint:0.01369*12, 0.03448*3
+    #     background_color :1, 1, 1, 0
+    #     background_color :0.5, 0.5, 0.5, 0.3
+    #     color : 1, 1, 1, 1
+    #     on_press: root.save_as_excel()
+
+    Image:
+        id: graph_sample
+        size_hint: 0.5, 0.5
+        size: self.texture_size
+        background_color: 1, 1, 1, 0.5
+        source: '/tmp/1670997180.png'
 
 
 <WindowCalibration>
@@ -1337,26 +1729,27 @@ WindowManager:
             pos_hint : {"x":0.35, "y":0.1}
             halign: 'center'
             background_color :182, 182, 182, 0.3
+            on_press: root.reset_screen()
+        # Button:
+        #     text: "DISCARD"
+        #     size_hint: 0.1, 0.8
+        #     pos_hint : {"x":0.5, "y":0.1}
+        #     halign: 'center'
+        #     background_color :182, 182, 182, 0.3
         Button:
-            text: "DISCARD"
+            text: "HOME"
             size_hint: 0.1, 0.8
             pos_hint : {"x":0.5, "y":0.1}
             halign: 'center'
             background_color :182, 182, 182, 0.3
-        Button:
-            text: "HOME"
-            size_hint: 0.1, 0.8
-            pos_hint : {"x":0.65, "y":0.1}
-            halign: 'center'
-            background_color :182, 182, 182, 0.3
             on_press: app.root.current = "layout_home"
-        Button:
-            text: "BACK"
-            size_hint: 0.1, 0.8
-            pos_hint : {"x":0.8, "y":0.1}
-            halign: 'center'
-            background_color :182, 182, 182, 0.3
-            on_press: app.root.current = "layout_home"
+        # Button:
+        #     text: "BACK"
+        #     size_hint: 0.1, 0.8
+        #     pos_hint : {"x":0.8, "y":0.1}
+        #     halign: 'center'
+        #     background_color :182, 182, 182, 0.3
+        #     on_press: app.root.current = "layout_home"
 
     FloatLayout:
         size_hint: 1, 0.8
@@ -1398,26 +1791,28 @@ WindowManager:
                 halign: 'center'
                 background_color :182, 182, 182, 0.3
             Button:
-                text: "REPORT"
+                text: "CUSTOMER"
                 size_hint: 0.8, 0.1
                 pos_hint : {"x":0.1, "y":0.4}
                 halign: 'center'
                 background_color :182, 182, 182, 0.3
+                on_press: app.root.current = "layout_customer_entry"
             Button:
-                text: "SETTING"
+                text: "PRODUCT"
                 size_hint: 0.8, 0.1
                 pos_hint : {"x":0.1, "y":0.25}
                 halign: 'center'
                 background_color :182, 182, 182, 0.3
-            Button:
-                text: "LOGIN"
-                size_hint: 0.8, 0.1
-                pos_hint : {"x":0.1, "y":0.1}
-                halign: 'center'
-                background_color :182, 182, 182, 0.3
+                on_press: app.root.current = "layout_product_entry"
+            # Button:
+            #     text: "LOGIN"
+            #     size_hint: 0.8, 0.1
+            #     pos_hint : {"x":0.1, "y":0.1}
+            #     halign: 'center'
+            #     background_color :182, 182, 182, 0.3
 
         FloatLayout:
-            size_hint: 0.8, 1
+            size_hint: 0.7, 1
             pos_hint: {'x': 0.2, 'y': 0}
             canvas.before :
                 Color:  
@@ -1458,6 +1853,12 @@ WindowManager:
                 pos_hint : {"x":0.05, "y":0.1}
                 on_press: root.do_calibration(root.channel1, root.process_cal)
             Label:
+                id: label_ch1_cal_zero
+                text: ""
+                font_size: 14
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.05, "y":0.01}
+            Label:
                 id: ch1_raw_adc
                 text: "1234"
                 size_hint: 0.175, 0.1
@@ -1468,6 +1869,7 @@ WindowManager:
                 size_hint: 0.175, 0.1
                 pos_hint : {"x":0.275, "y":0.7}
                 input_type: "number"
+                halign: "center"
                 multiline: 0
             TextInput:
                 id: ch1_resolution
@@ -1475,6 +1877,7 @@ WindowManager:
                 size_hint: 0.175, 0.1
                 pos_hint : {"x":0.275, "y":0.6}
                 input_type: "number"
+                halign: "center"
                 multiline: 0
             TextInput:
                 id: ch1_max_capacity
@@ -1482,6 +1885,7 @@ WindowManager:
                 size_hint: 0.175, 0.1
                 pos_hint : {"x":0.275, "y":0.5}
                 input_type: "number"
+                halign: "center"
                 multiline: 0
             TextInput:
                 id: ch1_cal_capacity
@@ -1489,15 +1893,22 @@ WindowManager:
                 size_hint: 0.175, 0.1
                 pos_hint : {"x":0.275, "y":0.4}
                 input_type: "number"
+                halign: "center"
                 multiline: 0
             Button:
                 text: "CAL SPAN"
                 size_hint: 0.175, 0.1
                 pos_hint : {"x":0.275, "y":0.1}
                 on_press: root.do_calibration(root.channel1, root.process_span)
+            Label:
+                id: label_ch1_cal_span
+                text: ""
+                font_size: 14
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.275, "y":0.01}
 
             Label:
-                text: "DISPLACEMENT ENCODER"
+                text: "ENCODER"
                 size_hint: 0.4, 0.1
                 pos_hint : {"x":0.55, "y":0.9}
                 font_size: 24
@@ -1506,22 +1917,36 @@ WindowManager:
                 size_hint: 0.175, 0.1
                 pos_hint : {"x":0.55, "y":0.8}
             Label:
-                text: "STEPS/ROTATION"
+                text: "DECIMAL POINT"
                 size_hint: 0.175, 0.1
                 pos_hint : {"x":0.55, "y":0.7}
             Label:
-                text: "LENGTH/ROTATION"
+                text: "RESOLUTION"
                 size_hint: 0.175, 0.1
                 pos_hint : {"x":0.55, "y":0.6}
+            # Label:
+            #     text: "STEPS/ROTATION"
+            #     size_hint: 0.175, 0.1
+            #     pos_hint : {"x":0.55, "y":0.7}
+            Label:
+                text: "CAL LENGTH"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.55, "y":0.5}
             Label:
                 text: "MAX LENGTH"
                 size_hint: 0.175, 0.1
-                pos_hint : {"x":0.55, "y":0.5}
-            # Button:
-            #     text: "CAL ZERO"
-            #     size_hint: 0.175, 0.1
-            #     pos_hint : {"x":0.55, "y":0.1}
-            #     on_press: root.do_calibration(root.channel3, root.process_cal)
+                pos_hint : {"x":0.55, "y":0.4}
+            Button:
+                text: "CAL ZERO"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.55, "y":0.1}
+                on_press: root.do_calibration(root.channel3, root.process_cal)
+            Label:
+                id: label_ch3_cal_zero
+                text: ""
+                font_size: 14
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.55, "y":0.01}
 
             Label:
                 id: ch3_raw_adc
@@ -1529,26 +1954,326 @@ WindowManager:
                 size_hint: 0.175, 0.1
                 pos_hint : {"x":0.775, "y":0.8}
             TextInput:
-                id: ch3_cal_span
-                hint_text: "cal span"
+                id: ch3_decimal_point
+                hint_text: "0, 1, 2, 3"
                 size_hint: 0.175, 0.1
                 pos_hint : {"x":0.775, "y":0.7}
                 input_type: "number"
+                halign: "center"
                 multiline: 0
+            TextInput:
+                id: ch3_resolution
+                hint_text: "resolution"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.775, "y":0.6}
+                input_type: "number"
+                halign: "center"
+                multiline: 0
+            # TextInput:
+            #     id: ch3_cal_span
+            #     hint_text: "cal span"
+            #     size_hint: 0.175, 0.1
+            #     pos_hint : {"x":0.775, "y":0.7}
+            #     input_type: "number"
+            #     multiline: 0
             TextInput:
                 id: ch3_cal_capacity
                 hint_text: "cal capacity"
                 size_hint: 0.175, 0.1
-                pos_hint : {"x":0.775, "y":0.6}
+                pos_hint : {"x":0.775, "y":0.5}
                 input_type: "number"
+                halign: "center"
                 multiline: 0
             TextInput:
                 id: ch3_max_capacity
                 hint_text: "max capacity"
                 size_hint: 0.175, 0.1
-                pos_hint : {"x":0.775, "y":0.5}
+                pos_hint : {"x":0.775, "y":0.4}
                 input_type: "number"
+                halign: "center"
                 multiline: 0
+            Button:
+                text: "CAL SPAN"
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.775, "y":0.1}
+                on_press: root.do_calibration(root.channel3, root.process_span)
+            Label:
+                id: label_ch3_cal_span
+                text: ""
+                font_size: 14
+                size_hint: 0.175, 0.1
+                pos_hint : {"x":0.775, "y":0.01}
+
+        FloatLayout:
+            size_hint: 0.1, 1
+            pos_hint: {'x': 0.9, 'y': 0}
+            canvas.before :
+                Color:  
+                    rgba: 1, 1, 1, 1
+                Line:
+                    width: 0.5
+                    rectangle: self.x, self.y, self.width, self.height
+
+            MyLabel :
+                id: label_operate
+                font_size : 14
+                text: "OPERATE"
+                pos_hint : {"x": 0.2, "y": 0.9}
+                size_hint: 0.6, 0.1
+                background_color :1, 1, 1, 1
+                color : 1, 1, 1, 1
+                # on_press: root.enable_operate_buttons(0)
+
+            Button :
+                canvas.before:
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                        source: "res/img/Up.png"
+                size_hint_y: None
+                height: self.width
+                # id: button_operate_up
+                font_size : 22
+                # text: "UP"
+
+                pos_hint : {"x":0.2, "y":0.7}
+                size_hint:0.6, 0.1
+                background_color :1, 1, 1, 0
+                color : 1, 1, 1, 1
+                on_press: app.actuate_gpio(app.GPIO_UP, 1)
+                on_release: app.actuate_gpio(app.GPIO_UP, 0)
+            
+            Button :
+                canvas.before:
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                        source: "res/img/Slow.png"
+                size_hint_y: None
+                height: self.width
+                # id: button_operate_slow
+                font_size: 22
+                # text: "SLOW"
+                pos_hint: {"x":0.2, "y":0.55}
+                size_hint: 0.6, 0.1
+                background_color :1, 1, 1, 0
+                color: 1, 1, 1, 1
+                on_press: app.actuate_gpio(app.GPIO_SLOW, 1)
+                on_release: app.actuate_gpio(app.GPIO_SLOW, 0)
+                
+            Button :
+                canvas.before:
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                        source: "res/img/Fast.png"
+                size_hint_y: None
+                height: self.width
+                id: button_operate_fast
+                font_size : 22
+                # text: "FAST"
+                pos_hint : {"x":0.2, "y":0.3}
+                size_hint:0.6, 0.1
+                background_color :1, 1, 1, 0
+                color : 1, 1, 1, 1
+                on_press: app.actuate_gpio(app.GPIO_FAST, 1)
+                on_release: app.actuate_gpio(app.GPIO_FAST, 0)
+            Button :
+                canvas.before:
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                        source: "res/img/Down.png"
+                size_hint_y: None
+                height: self.width
+                id: button_operate_down
+                font_size : 22
+                # text: "DOWN"
+                pos_hint : {"x":0.2, "y":0.15}
+                size_hint:0.6, 0.1
+                background_color :1, 1, 1, 0
+                color : 1, 1, 1, 1
+                on_press: app.actuate_gpio(app.GPIO_DOWN, 1)
+                on_release: app.actuate_gpio(app.GPIO_DOWN, 0)
+    
+    FloatLayout:
+        size_hint: 1, 0.1
+        pos_hint: {'x': 0, 'y': 0.9}
+        canvas.before :
+            Color:  
+                rgba: 1, 1, 1, 1
+            Line:
+                width: 0.5
+                rectangle: self.x, self.y, self.width, self.height
+
+        # Label:
+        #     id: calendar
+        #     size_hint: 0.1, 0.8
+        #     pos_hint: {'x': 0.05, 'y': 0.1}
+        #     text: "dd/mm/yyyy"
+        Label:
+            size_hint: 0.4, 0.8
+            pos_hint: {'x': 0.3, 'y': 0.1}
+            text: "CALIBRATION"
+            font_size: 28
+        # Label:
+        #     id: clock
+        #     size_hint: 0.1, 0.8
+        #     pos_hint: {'x': 0.85, 'y': 0.1}
+        #     text: "hh:mm:ss"
+    
+
+<WindowDiagnostics>
+    name: "layout_diagnostics"
+    
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: 'res/img/Background-plane.png'
+
+    FloatLayout:
+        size_hint: 1, 0.1
+        pos_hint: {'x': 0, 'y': 0}
+        canvas.before :
+            Color:  
+                rgba: 1, 1, 1, 1
+            Line:
+                width: 0.5
+                rectangle: self.x, self.y, self.width, self.height
+
+        Button:
+            text: "Home"
+            size_hint: 0.1, 0.8
+            pos_hint : {"x":0.2, "y":0.1}
+            background_color :1, 1, 1, 0
+            color : 1, 1, 1, 1
+            on_press: app.root.current = "layout_home"
+        # Button:
+        #     text: "Back"
+        #     size_hint: 0.1, 0.8
+        #     pos_hint : {"x":0.4, "y":0.1}
+        #     background_color :1, 1, 1, 0
+        #     color : 1, 1, 1, 1
+        #     on_press: app.root.current = "layout_tc1"
+
+    FloatLayout:
+        size_hint: 1, 0.8
+        pos_hint: {'x': 0, 'y': 0.1}
+        canvas.before :
+            Color:  
+                rgba: 1, 1, 1, 1
+            Line:
+                width: 0.5
+                rectangle: self.x, self.y, self.width, self.height
+
+        FloatLayout:
+            size_hint: 0.2, 1
+            pos_hint: {'x': 0, 'y': 0}
+            canvas.before :
+                Color:  
+                    rgba: 1, 1, 1, 1
+                Line:
+                    width: 0.5
+                    rectangle: self.x, self.y, self.width, self.height
+
+            Button:
+                canvas.before :
+                    Color:  
+                        rgba: 0, 1, 1, 1
+                    Line:
+                        width: 1
+                        rectangle: self.x, self.y, self.width, self.height
+                text: "DIAGNOSTIC"
+                size_hint: 0.8, 0.1
+                pos_hint : {"x":0.1, "y":0.70}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                on_press: app.root.current = "layout_diagnostics"
+            Button:
+                text: "CALIBRATION"
+                size_hint: 0.8, 0.1
+                pos_hint : {"x":0.1, "y":0.55}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                on_press: app.root.current = "layout_calibration"
+            Button:
+                text: "REPORT"
+                size_hint: 0.8, 0.1
+                pos_hint : {"x":0.1, "y":0.4}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                on_press: app.root.current = "layout_customer_entry"
+            Button:
+                text: "SETTING"
+                size_hint: 0.8, 0.1
+                pos_hint : {"x":0.1, "y":0.25}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                on_press: app.root.current = "layout_product_entry"
+            Button:
+                text: "LOGIN"
+                size_hint: 0.8, 0.1
+                pos_hint : {"x":0.1, "y":0.1}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+
+        FloatLayout:
+            size_hint: 0.9, 1
+            pos_hint: {'x': 0.2, 'y': 0}
+            canvas.before :
+                Color:  
+                    rgba: 1, 1, 1, 1
+                Line:
+                    width: 0.5
+                    rectangle: self.x, self.y, self.width, self.height
+
+            Label:
+                text: "LOAD CELL"
+                font_size: 24
+                size_hint: 0.4, 0.1
+                pos_hint : {"x":0.1, "y":0.9}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+            Label:
+                text: "ENCODER"
+                font_size: 24
+                size_hint: 0.4, 0.1
+                pos_hint : {"x":0.1, "y":0.7}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+            Label:
+                id: ch1_raw_adc
+                text: "1234"
+                font_size: 24
+                size_hint: 0.4, 0.1
+                pos_hint : {"x":0.3, "y":0.9}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+            Label:
+                id: ch3_raw_adc
+                text: "1234"
+                font_size: 24
+                size_hint: 0.4, 0.1
+                pos_hint : {"x":0.3, "y":0.7}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+            Label:
+                id: ch1_value
+                text: "1234"
+                font_size: 24
+                size_hint: 0.4, 0.1
+                pos_hint : {"x":0.5, "y":0.9}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+            Label:
+                id: ch3_value
+                text: "1234"
+                font_size: 24
+                size_hint: 0.4, 0.1
+                pos_hint : {"x":0.5, "y":0.7}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
 
     FloatLayout:
         size_hint: 1, 0.1
@@ -1568,17 +2293,11 @@ WindowManager:
         Label:
             size_hint: 0.4, 0.8
             pos_hint: {'x': 0.3, 'y': 0.1}
-            text: "MENU"
+            text: "DIAGNOSTICS"
             font_size: 28
-        # Label:
-        #     id: clock
-        #     size_hint: 0.1, 0.8
-        #     pos_hint: {'x': 0.85, 'y': 0.1}
-        #     text: "hh:mm:ss"
-    
 
-<WindowDiagnostics>
-    name: "layout_diagnostics"
+<WindowCustomerEntry>
+    name: "layout_customer_entry"
     
     canvas.before:
         Rectangle:
@@ -1587,7 +2306,7 @@ WindowManager:
             source: 'res/img/Background-plane.png'
 
     FloatLayout:
-        size_hint: 1, 1
+        size_hint: 1, 0.1
         pos_hint: {'x': 0, 'y': 0}
         canvas.before :
             Color:  
@@ -1596,54 +2315,595 @@ WindowManager:
                 width: 0.5
                 rectangle: self.x, self.y, self.width, self.height
 
-        Label:
-            text: "LOAD CELL"
+        Button:
+            id: button_new
+            text: "NEW"
             font_size: 24
-            size_hint: 0.4, 0.1
+            size_hint: 0.15, 0.8
+            pos_hint : {"x":0.05, "y":0.1}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            on_press: root.new()
+        Button:
+            text: "EDIT"
+            font_size: 24
+            size_hint: 0.15, 0.8
+            pos_hint : {"x":0.25, "y":0.1}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            on_press: root.edit()
+        Button:
+            text: "SAVE"
+            font_size: 24
+            size_hint: 0.15, 0.8
+            pos_hint : {"x":0.45, "y":0.1}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            on_press: root.save()
+        Button:
+            text: "DELETE"
+            font_size: 24
+            size_hint: 0.15, 0.8
+            pos_hint : {"x":0.65, "y":0.1}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            on_release: root.delete()
+        Button:
+            text: "HOME"
+            font_size: 24
+            size_hint: 0.15, 0.8
+            pos_hint : {"x":0.85, "y":0.1}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            on_press: app.root.current = "layout_home"
+
+    FloatLayout:
+        size_hint: 1, 0.8
+        pos_hint: {'x': 0, 'y': 1/10}
+        canvas.before :
+            Color:  
+                rgba: 1, 1, 1, 1
+            Line:
+                width: 0.5
+                rectangle: self.x, self.y, self.width, self.height
+
+        FloatLayout:
+            size_hint: 0.2, 1
+            pos_hint: {'x': 0, 'y': 0}
+            canvas.before :
+                Color:  
+                    rgba: 1, 1, 1, 1
+                Line:
+                    width: 0.5
+                    rectangle: self.x, self.y, self.width, self.height
+
+            Button:
+                text: "DIAGNOSTIC"
+                size_hint: 0.8, 0.1
+                pos_hint : {"x":0.1, "y":0.70}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                on_press: app.root.current = "layout_diagnostics"
+            Button:
+                text: "CALIBRATION"
+                size_hint: 0.8, 0.1
+                pos_hint : {"x":0.1, "y":0.55}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                on_press: app.root.current = "layout_calibration"
+            Button:
+                canvas.before :
+                    Color:  
+                        rgba: 0, 1, 1, 1
+                    Line:
+                        width: 1
+                        rectangle: self.x, self.y, self.width, self.height
+                text: "CUSTOMER"
+                size_hint: 0.8, 0.1
+                pos_hint : {"x":0.1, "y":0.4}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                on_press: app.root.current = "layout_customer_entry"
+            Button:
+                text: "PRODUCT"
+                size_hint: 0.8, 0.1
+                pos_hint : {"x":0.1, "y":0.25}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                on_press: app.root.current = "layout_product_entry"
+            # Button:
+            #     text: "LOGIN"
+            #     size_hint: 0.8, 0.1
+            #     pos_hint : {"x":0.1, "y":0.1}
+            #     halign: 'center'
+            #     background_color :182, 182, 182, 0.3
+
+        Label:
+            text: "CODE"
+            font_size: 16
+            size_hint: 0.28, 0.1
+            pos_hint : {"x":0.1, "y":0.9}
+            text_size: self.size
+            halign: 'right'
+            valign: 'middle'
+            background_color :182, 182, 182, 0.3
+        # TextInput:
+        #     id: input_code
+        #     hint_text: "<customer code>"
+        #     font_size: 16
+        #     size_hint: 0.5, 0.1
+        #     pos_hint : {"x":0.4, "y":0.9}
+        #     halign: 'center'
+        #     multiline: 0
+        #     background_color :182, 182, 182, 0.3
+        Spinner:
+            id: spinner_code
+            text: "<select customer code>"
+            size_hint: 0.5, 0.1
+            pos_hint : {"x":0.4, "y":0.9}
+            on_text: root.populate_data(self.text)
+        Label:
+            text: "NAME:"
+            font_size: 16
+            size_hint: 0.28, 0.1
+            pos_hint : {"x":0.1, "y":0.8}
+            text_size: self.size
+            halign: 'right'
+            valign: 'middle'
+            background_color :182, 182, 182, 0.3
+        TextInput:
+            id: input_name
+            hint_text: "name"
+            font_size: 16
+            multiline: 0
+            size_hint: 0.5, 0.1
+            pos_hint : {"x":0.4, "y":0.8}
+            halign: 'center'
+            valign: 'middle'
+            background_color :182, 182, 182, 0.3
+        Label:
+            text: "ADDRESS:"
+            font_size: 16
+            size_hint: 0.28, 0.1
+            pos_hint : {"x":0.1, "y":0.65}
+            text_size: self.size
+            halign: 'right'
+            valign: 'middle'
+            background_color :182, 182, 182, 0.3
+        TextInput:
+            id: input_address
+            hint_text: "address"
+            font_size: 16
+            size_hint: 0.5, 0.15
+            pos_hint : {"x":0.4, "y":0.65}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+        Label:
+            text: "CITY:"
+            font_size: 16
+            size_hint: 0.28, 0.1
+            pos_hint : {"x":0.1, "y":0.55}
+            text_size: self.size
+            halign: 'right'
+            valign: 'middle'
+            background_color :182, 182, 182, 0.3
+        TextInput:
+            id: input_city
+            hint_text: "Ney York"
+            font_size: 16
+            size_hint: 0.5, 0.1
+            pos_hint : {"x":0.4, "y":0.55}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+        Label:
+            text: "PINCODE:"
+            font_size: 16
+            size_hint: 0.28, 0.1
+            pos_hint : {"x":0.1, "y":0.45}
+            text_size: self.size
+            halign: 'right'
+            valign: 'middle'
+            background_color :182, 182, 182, 0.3
+        TextInput:
+            id: input_pin
+            hint_text: "000-000"
+            font_size: 16
+            size_hint: 0.5, 0.1
+            pos_hint: {"x":0.4, "y":0.45}
+            multiline: 0
+            input_filter: 'int'
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+        Label:
+            text: "STATE"
+            font_size: 16
+            size_hint: 0.28, 0.1
+            pos_hint : {"x":0.1, "y":0.35}
+            text_size: self.size
+            halign: 'right'
+            valign: 'middle'
+            background_color :182, 182, 182, 0.3
+        TextInput:
+            id: input_state
+            hint_text: ""
+            font_size: 16
+            size_hint: 0.5, 0.1
+            pos_hint : {"x":0.4, "y":0.35}
+            multiline: 0
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+        Label:
+            text: "TEL1:"
+            font_size: 16
+            size_hint: 0.28, 0.1
+            pos_hint : {"x":0.1, "y":0.25}
+            text_size: self.size
+            halign: 'right'
+            valign: 'middle'
+            background_color :182, 182, 182, 0.3
+        TextInput:
+            id: input_tel1
+            hint_text: "0000-0000000"
+            font_size: 16
+            size_hint: 0.5, 0.1
+            pos_hint : {"x":0.4, "y":0.25}
+            multiline: 0
+            input_filter: 'int'
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+        # Label:
+        #     text: "C/O TEL:"
+        #     font_size: 16
+        #     size_hint: 0.2, 0.1
+        #     pos_hint : {"x":0.5, "y":0.15}
+        #     text_size: self.size
+        #     halign: 'right'
+        #     background_color :182, 182, 182, 0.3
+        # TextInput:
+        #     id: input_tel2
+        #     hint_text: "0000-0000000"
+        #     font_size: 16
+        #     size_hint: 0.5, 0.1
+        #     pos_hint : {"x":0.7, "y":0.15}
+        #     input_filter: 'int'
+        #     halign: 'center'
+        #     background_color :182, 182, 182, 0.3
+        Label:
+            text: "MOBILE"
+            font_size: 16
+            size_hint: 0.28, 0.1
+            pos_hint : {"x":0.1, "y":0.15}
+            text_size: self.size
+            halign: 'right'
+            valign: 'middle'
+            background_color :182, 182, 182, 0.3
+        TextInput:
+            id: input_mob
+            hint_text: "+91 0000000000"
+            font_size: 16
+            size_hint: 0.5, 0.1
+            pos_hint : {"x":0.4, "y":0.15}
+            multiline: 0
+            halign: 'center'
+            input_filter: 'int'
+            background_color :182, 182, 182, 0.3
+        Label:
+            text: "E-MAIL"
+            font_size: 16
+            size_hint: 0.28, 0.1
+            pos_hint : {"x":0.1, "y":0}
+            text_size: self.size
+            halign: 'right'
+            valign: 'middle'
+            background_color :182, 182, 182, 0.3
+        TextInput:
+            id: input_email
+            hint_text: "name@email.com"
+            font_size: 16
+            size_hint: 0.5, 0.1
+            pos_hint : {"x":0.4, "y":0.05}
+            multiline: 0
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+
+    FloatLayout:
+        size_hint: 1, 0.1
+        pos_hint: {'x': 0, 'y': 0.9}
+
+        Label:
+            text: "CUSTOMER ENTRY"
+            font_size: 20
+            size_hint: 1, 0.8
+            pos_hint : {"x":0, "y":0.1}
+            text_size: self.size
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+
+<WindowProductEntry>
+    name: "layout_product_entry"
+    
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: 'res/img/Background-plane.png'
+
+    FloatLayout:
+        size_hint: 1, 0.1
+        pos_hint: {'x': 0, 'y': 0}
+        canvas.before :
+            Color:  
+                rgba: 1, 1, 1, 1
+            Line:
+                width: 0.5
+                rectangle: self.x, self.y, self.width, self.height
+
+        Button:
+            id: button_new
+            text: "NEW"
+            font_size: 24
+            size_hint: 0.15, 0.8
+            pos_hint : {"x":0.05, "y":0.1}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            on_press: root.new()
+        Button:
+            text: "EDIT"
+            font_size: 24
+            size_hint: 0.15, 0.8
+            pos_hint : {"x":0.25, "y":0.1}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            on_press: root.edit()
+        Button:
+            text: "SAVE"
+            font_size: 24
+            size_hint: 0.15, 0.8
+            pos_hint : {"x":0.45, "y":0.1}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            on_press: root.save()
+        Button:
+            text: "DELETE"
+            font_size: 24
+            size_hint: 0.15, 0.8
+            pos_hint : {"x":0.65, "y":0.1}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            on_release: root.delete()
+        Button:
+            text: "HOME"
+            font_size: 24
+            size_hint: 0.15, 0.8
+            pos_hint : {"x":0.85, "y":0.1}
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+            on_press: app.root.current = "layout_home"
+
+    FloatLayout:
+        size_hint: 1, 0.8
+        pos_hint: {'x': 0, 'y': 1/10}
+        canvas.before :
+            Color:  
+                rgba: 1, 1, 1, 1
+            Line:
+                width: 0.5
+                rectangle: self.x, self.y, self.width, self.height
+
+        FloatLayout:
+            size_hint: 0.2, 1
+            pos_hint: {'x': 0, 'y': 0}
+            canvas.before :
+                Color:  
+                    rgba: 1, 1, 1, 1
+                Line:
+                    width: 0.5
+                    rectangle: self.x, self.y, self.width, self.height
+
+            Button:
+                text: "DIAGNOSTIC"
+                size_hint: 0.8, 0.1
+                pos_hint : {"x":0.1, "y":0.70}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                on_press: app.root.current = "layout_diagnostics"
+            Button:
+                text: "CALIBRATION"
+                size_hint: 0.8, 0.1
+                pos_hint : {"x":0.1, "y":0.55}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+            Button:
+                text: "CUSTOMER"
+                size_hint: 0.8, 0.1
+                pos_hint : {"x":0.1, "y":0.4}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                on_press: app.root.current = "layout_customer_entry"
+            Button:
+                canvas.before:
+                    Color:  
+                        rgba: 0, 1, 1, 1
+                    Line:
+                        width: 1
+                        rectangle: self.x, self.y, self.width, self.height
+                text: "PRODUCT"
+                size_hint: 0.8, 0.1
+                pos_hint : {"x":0.1, "y":0.25}
+                halign: 'center'
+                background_color :182, 182, 182, 0.3
+                on_press: app.root.current = "layout_product_entry"
+            # Button:
+            #     text: "LOGIN"
+            #     size_hint: 0.8, 0.1
+            #     pos_hint : {"x":0.1, "y":0.1}
+            #     halign: 'center'
+            #     background_color :182, 182, 182, 0.3
+
+        Label:
+            text: "CODE"
+            font_size: 16
+            size_hint: 0.2, 0.1
             pos_hint : {"x":0.2, "y":0.9}
-            halign: 'center'
+            text_size: self.size
+            halign: 'right'
+            valign: 'middle'
             background_color :182, 182, 182, 0.3
-        Label:
-            text: "Encoder"
-            font_size: 24
-            size_hint: 0.4, 0.1
-            pos_hint : {"x":0.2, "y":0.7}
-            halign: 'center'
-            background_color :182, 182, 182, 0.3
-        Label:
-            id: ch1_raw_adc
-            text: "1234"
-            font_size: 24
-            size_hint: 0.4, 0.1
+        Spinner:
+            id: spinner_code
+            hint_text: "<select product code>"
+            font_size: 16
+            size_hint: 0.5, 0.1
             pos_hint : {"x":0.4, "y":0.9}
             halign: 'center'
-            background_color :182, 182, 182, 0.3
+            on_text: root.populate_data(self.text)
         Label:
-            id: ch3_raw_adc
-            text: "1234"
-            font_size: 24
-            size_hint: 0.4, 0.1
-            pos_hint : {"x":0.4, "y":0.7}
+            text: "NAME:"
+            font_size: 16
+            size_hint: 0.2, 0.1
+            pos_hint : {"x":0.2, "y":0.8}
+            text_size: self.size
+            halign: 'right'
+            valign: 'middle'
+            background_color :182, 182, 182, 0.3
+        TextInput:
+            id: input_name
+            hint_text: "name"
+            font_size: 16
+            multiline: 0
+            size_hint: 0.5, 0.1
+            pos_hint : {"x":0.4, "y":0.8}
             halign: 'center'
             background_color :182, 182, 182, 0.3
         Label:
-            id: ch1_value
-            text: "1234"
-            font_size: 24
-            size_hint: 0.4, 0.1
-            pos_hint : {"x":0.6, "y":0.9}
+            text: "DESCRIPTION:"
+            font_size: 16
+            size_hint: 0.2, 0.1
+            pos_hint : {"x":0.2, "y":0.65}
+            text_size: self.size
+            halign: 'right'
+            valign: 'middle'
+            background_color :182, 182, 182, 0.3
+        TextInput:
+            id: input_description
+            hint_text: "description"
+            font_size: 16
+            size_hint: 0.5, 0.15
+            pos_hint : {"x":0.4, "y":0.65}
             halign: 'center'
             background_color :182, 182, 182, 0.3
         Label:
-            id: ch3_value
-            text: "1234"
-            font_size: 24
-            size_hint: 0.4, 0.1
-            pos_hint : {"x":0.6, "y":0.7}
+            text: "COMPRESSION VALUE:"
+            font_size: 16
+            size_hint: 0.2, 0.1
+            pos_hint : {"x":0.2, "y":0.55}
+            text_size: self.size
+            halign: 'right'
+            valign: 'middle'
+            background_color :182, 182, 182, 0.3
+        TextInput:
+            id: input_compression
+            hint_text: "<cmp value>"
+            font_size: 16
+            size_hint: 0.5, 0.1
+            pos_hint : {"x":0.4, "y":0.55}
             halign: 'center'
             background_color :182, 182, 182, 0.3
-        Button:
-            text: "Home"
-            size_hint: 0.4, 0.1
-            pos_hint : {"x":0.3, "y":0.1}
-            on_press: app.root.current = "layout_home"
+        Label:
+            text: "ACCEPTABLE LOW LIMIT:"
+            font_size: 16
+            size_hint: 0.2, 0.1
+            pos_hint : {"x":0.2, "y":0.45}
+            text_size: self.size
+            halign: 'right'
+            valign: 'middle'
+            background_color :182, 182, 182, 0.3
+        TextInput:
+            id: input_low_limit
+            hint_text: "<low limit>"
+            font_size: 16
+            size_hint: 0.5, 0.1
+            pos_hint: {"x":0.4, "y":0.45}
+            multiline: 0
+            input_filter: 'int'
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+        Label:
+            text: "ACCEPTABLE HIGH LIMIT:"
+            font_size: 16
+            size_hint: 0.2, 0.1
+            pos_hint : {"x":0.2, "y":0.35}
+            text_size: self.size
+            halign: 'right'
+            valign: 'middle'
+            background_color :182, 182, 182, 0.3
+        TextInput:
+            id: input_high_limit
+            hint_text: "<high limit>"
+            font_size: 16
+            size_hint: 0.5, 0.1
+            pos_hint : {"x":0.4, "y":0.35}
+            multiline: 0
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+        Label:
+            text: "SIZE:"
+            font_size: 16
+            size_hint: 0.2, 0.1
+            pos_hint : {"x":0.2, "y":0.25}
+            text_size: self.size
+            halign: 'right'
+            valign: 'middle'
+            background_color :182, 182, 182, 0.3
+        TextInput:
+            id: input_size
+            hint_text: "l*b*h"
+            font_size: 16
+            size_hint: 0.5, 0.1
+            pos_hint : {"x":0.4, "y":0.25}
+            multiline: 0
+            input_filter: 'int'
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+    
+    FloatLayout:
+        size_hint: 1, 0.1
+        pos_hint: {'x': 0, 'y': 0.9}
+
+        Label:
+            text: "PRODUCT ENTRY"
+            font_size: 20
+            size_hint: 1, 0.8
+            pos_hint : {"x":0, "y":0.1}
+            text_size: self.size
+            halign: 'center'
+            background_color :182, 182, 182, 0.3
+        
+
+<WindowTrial>
+    name: "layout_trial"
+
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: 'res/img/Background-plane.png'
+
+    # MDDataTable:
+    # table added in py file
+ 
+    MDFlatButton:
+        # https://kivymd.readthedocs.io/en/1.1.1/components/dialog/#kivymd.uix.dialog.dialog.MDDialog.type
+        text: "GENERATE REPORT"
+        pos_hint: {'center_x': .5, 'center_y': .05}
+        on_press: root.generate_report()
+    MDFlatButton:
+        text: "DELETE"
+        pos_hint: {'center_x': .6, 'center_y': .05}
+        background_color: 0, 1, 1, 0.5
+        on_press: root.delete_rows()
+    MDFlatButton:
+        text: "HOME"
+        pos_hint: {'center_x': .7, 'center_y': .05}
+        background_color: 0, 1, 1, 0.5
+        on_press: app.root.current = "layout_home"

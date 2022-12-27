@@ -65,8 +65,7 @@ class SerialCommunication:
                     print("\033[91m[UART]:\033[0mPERMISSION DENIED")
                 elif "[Errno 2]" in e:
                     print(f"\033[91m[UART]:\033[0mNo such port ({self.port})")
-                    print("     • Check if your Serial USB is connected\n     • Verify rules file at "
-                          "/etc/udev/rules.d/99-usb-serial.rules")
+                    print("     • Check if your Serial USB is connected")
                 # self.ser = None
                 print(e)
                 # return False
