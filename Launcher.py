@@ -21,6 +21,7 @@ from kivy.uix.widget import Widget
 from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.clock import Clock, mainthread
+from kivy.graphics import Rectangle, Color
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.textinput import TextInput
@@ -45,11 +46,10 @@ import random
 from kivy_garden.graph import Graph, LinePlot, MeshLinePlot
 
 import os
+import re
 import sys
 import ast
-import copy
 import time
-import json
 import sqlite3
 from random import random
 from threading import Timer
@@ -58,6 +58,7 @@ from datetime import datetime
 import uart_read
 import db_utils
 from pdf_generator import generate_pdf
+from py.kivy_dialog import Confirm, Alert
 
 
 """ Function to regularly update Date and Time in environment variable """
@@ -104,7 +105,7 @@ class Calculation:
         self.decimal_point = calibration_data[1]
         self.resolution = calibration_data[2]
         self.max_capacity = calibration_data[3]
-        self.cal_capacity = calibration_data[4]
+        self.cal_capacity = calibration_data[4] or 0
         self.cal_zero = calibration_data[5]
         self.cal_span = calibration_data[6]
         # calculate multiplication factor from calibration data
@@ -184,6 +185,7 @@ class KeyboardManager():
     def __init__(self) -> None:
         self.__input = None
         self.input_assist = None
+        self.input_assist_panel = None
         self.__keyboard = Window.request_keyboard(
             self._keyboard_close, self)
         if self.__keyboard.widget:
@@ -201,31 +203,58 @@ class KeyboardManager():
 
     def input_focused_callback(self, widget, is_focused, *args):
         if is_focused:
-            if (widget.input_filter == 'int'):
+            print("[KEYBOARD]:", widget.input_type,   "numeric", widget.input_type in ['number', 'tel'])
+            if (widget.input_type in ['number', 'tel']):
                 self.__keyboard.widget.layout = 'numeric.json'
             else:
                 self.__keyboard.widget.layout = 'qwerty'
 
             self.__input = widget
-            self.input_assist = TextInput(
+            self.input_assist_panel = FloatLayout(
                 pos_hint={'x': 0, 'y': 0.48},
-                size_hint=(1, 0.1),
+                size_hint=(1, 0.6)
+            )
+            self.input_assist = TextInput(
+                pos_hint={'x': 0.3, 'y': 0},
+                size_hint=(0.6, 0.15),
                 halign='center',
                 text=widget.text,
                 hint_text=widget.hint_text,
                 input_filter=widget.input_filter,
                 multiline=widget.multiline
             )
+            label = Label(
+                pos_hint={'x': 0, 'y': 0},
+                size_hint=(0.3, 0.15),
+                halign='right',
+                text=widget.hint_text or ''
+            )
+            with self.input_assist_panel.canvas:
+                Color(.0667, .2784, .3725, 1)  # set the colour
+                # Setting the size and position of canvas
+                self.rect = Rectangle(size=(2000, 340))
+            ok_button = Button(
+                text='OK',
+                pos_hint={'x': 0.9, 'y': 0},
+                size_hint=(0.1, 0.15),
+            )
             self.input_assist.focus = 1
             self.input_assist.bind(focus=self.close_input_assist)
-            self.add_widget(self.input_assist)
+            self.input_assist_panel.add_widget(label)
+            self.input_assist_panel.add_widget(self.input_assist)
+            self.input_assist_panel.add_widget(ok_button    )
+            self.add_widget(self.input_assist_panel)
 
     def close_input_assist(self, widget, is_focused):
         if is_focused:
             return
         if self.__input:
             self.__input.text = self.input_assist.text
-        self.remove_widget(self.input_assist)
+        self.remove_widget(self.input_assist_panel)
+        self.keyboard_closed_callback()
+
+    def keyboard_closed_callback(*args):
+        pass
 
     def _keyboard_close(self):
         pass
@@ -259,6 +288,7 @@ class OutputManager():
         self.output_lot_number = None
         self.output_test_number = None
         self.output_invoice_number = None
+        self.output_size = None
         self.output_remarks = None
         self.canvas_path = None
         self.log_path = None
@@ -268,6 +298,20 @@ class OutputManager():
         self.product_details = {}
 
 OUTPUT_MGR = OutputManager()
+
+
+def HideWidget(wid, dohide=True):
+    if hasattr(wid, 'saved_attrs'):
+        if not dohide:
+            wid.height, wid.size_hint_y, wid.opacity, wid.disabled = wid.saved_attrs
+            del wid.saved_attrs
+    elif dohide:
+        wid.saved_attrs = wid.height, wid.size_hint_y, wid.opacity, wid.disabled
+        wid.height, wid.size_hint_y, wid.opacity, wid.disabled = 0, None, 0, True
+
+
+def NavigateScreen(screen, layout):
+    screen.manager.current = layout
 
 
 """
@@ -366,28 +410,43 @@ class WindowHome(Screen, TikTok):
 class WindowTC1(Screen, KeyboardManager, TikTok):
     def __init__(self, **kw):
         super().__init__(**kw)
+        TikTok.__init__(self)
+        self.user_inputs = []
+        self.user_spinners = []
+        self.init()
         self.test_id = 0
-        # Timer(1, self.fetch_next_id).start()
-        # Clock.schedule_once(self.fetch_next_id, 0)
+
+    @mainthread
+    def init(self):
+        self.user_inputs = [self.ids.input_mid, self.ids.input_lot, self.ids.input_iid,
+            self.ids.input_product_size, self.ids.input_remarks]
+        self.user_spinners = [self.ids.spinner_master, self.ids.spinner_product_master]
+
+    def keyboard_closed_callback(self):
+        self.enable_next_button()
 
     def enable_next_button(self):
-        disable = 0
-        if not self.ids.input_mid.text:
-            disable = 1
-        if not self.ids.input_lot.text:
-            disable = 1
-        if not self.ids.input_iid.text:
-            disable = 1
-        print("Enabling...", disable)
-        # self.ids.next.disabled = disable
+        inputs = (self.ids.label_name.text, self.ids.label_product_name.text,
+            self.ids.input_mid.text, self.ids.input_lot.text, self.ids.input_iid.text)
+        print("[ENABLE NEXT]:", inputs)
+        for i in inputs:
+            if not i: self.ids.button_start.disabled = True; return
+        self.ids.button_start.disabled = False
+
+    def on_pre_enter(self):
+        self.fetch_next_id()
+        self.enable_next_button()
+
+    def on_pre_leave(self):
+        self.reset_form()
 
     def fetch_next_id(self):
         conn = sqlite3.connect('./data.db')
-        sql = f''' SELECT * FROM Tests ORDER BY id DESC LIMIT 1 '''
+        sql = f''' SELECT id FROM Tests ORDER BY id DESC LIMIT 1 '''
         cur = conn.cursor()
         cur.execute(sql)
-        rows = cur.fetchone()
-        self.test_id = (rows[0] or 0) + 1
+        rows = cur.fetchone() or (0,)
+        self.test_id = str(int(rows[0]) + 1).zfill(3)
         print("Test Id:", self.test_id)
         self.ids.label_id.text = str(self.test_id)
 
@@ -419,6 +478,7 @@ class WindowTC1(Screen, KeyboardManager, TikTok):
             record = self.fetch_vendor_record()
         print(record)
         self.ids.label_name.text = record[1]
+        self.enable_next_button()
 
     def fetch_customer_list(self):
         conn = sqlite3.connect('./data.db')
@@ -445,7 +505,7 @@ class WindowTC1(Screen, KeyboardManager, TikTok):
         print(sql, code)
         cur = conn.cursor()
         cur.execute(sql, (code,))
-        row = cur.fetchone()
+        row = cur.fetchone() or (code, *' '*9)
         return row
 
     def fetch_vendor_record(self):
@@ -455,7 +515,7 @@ class WindowTC1(Screen, KeyboardManager, TikTok):
         print(sql)
         cur = conn.cursor()
         cur.execute(sql, (code,))
-        row = cur.fetchone()
+        row = cur.fetchone() or (code, *' '*9)
         return row
 
     def populate_customer_spinner(self):
@@ -473,13 +533,14 @@ class WindowTC1(Screen, KeyboardManager, TikTok):
         self.ids.spinner_master.values = values
 
     def product_code_selection(self):
-        record = self.fetch_material_record() or []
+        record = self.fetch_material_record()
         print(record)
         self.ids.label_product_name.text = record[1]
         # self.ids.label_product_description.text = record[2]
-        # self.ids.label_product_min.text = str(record[3])
-        # self.ids.label_product_max.text = str(record[4])
-        self.ids.label_product_size.text = str(record[5])
+        # self.ids.label_product_min.text = str(record[4])
+        # self.ids.label_product_max.text = str(record[5])
+        self.ids.input_product_size.text = str(record[6])
+        self.enable_next_button()
 
     def populate_material_spinner(self):
         conn = sqlite3.connect('./data.db')
@@ -500,8 +561,34 @@ class WindowTC1(Screen, KeyboardManager, TikTok):
         print(sql, code)
         cur = conn.cursor()
         cur.execute(sql, (code,))
-        row = cur.fetchone()
+        row = cur.fetchone() or (code, *' '*6)
         return row
+
+    def is_form_blank(self) -> bool:
+        inputs_filled = False
+        spinners_filled = False
+        for input in self.user_inputs:
+            inputs_filled =  input.text != ""
+            if inputs_filled: break
+        for spinner in self.user_spinners:
+            spinners_filled = spinner.text in spinner.values
+            if spinners_filled: break
+        return not inputs_filled and not spinners_filled
+
+    def reset_form(self):
+        self.user_spinners[0].text = "Select Code"
+        self.user_spinners[1].text = "Select Product"
+        for input in self.user_inputs:
+            input.text = ""
+
+    def navigate_home(self):
+        if self.is_form_blank():
+            self.manager.current = 'layout_home'
+            return
+        Confirm().popup("Do you want to discard the data?",
+            yes_btn_cb=lambda: NavigateScreen(self, 'layout_home'),
+            blocking=False)
+        
 
     def submit(self):
         OUTPUT_MGR.customer_details['code'] = self.ids.spinner_master.text
@@ -513,6 +600,7 @@ class WindowTC1(Screen, KeyboardManager, TikTok):
         OUTPUT_MGR.output_lot_number = self.ids.input_lot.text
         OUTPUT_MGR.output_test_number = self.ids.label_id.text
         OUTPUT_MGR.output_invoice_number = self.ids.input_iid.text
+        OUTPUT_MGR.output_size = self.ids.input_product_size.text
         OUTPUT_MGR.output_remarks = self.ids.input_remarks.text
         print(OUTPUT_MGR.__dict__)
         self.save_to_db()
@@ -703,8 +791,8 @@ class WindowTesting(Screen, Widget, TikTok):
         self.graph.ymax = max(self.graph.ymax, load + load_padding)
         self.graph.ymin = min(self.graph.ymin, load - load_padding)
         # tick adjustment
-        self.graph.x_ticks_major = self.graph.xmax
-        self.graph.y_ticks_major = self.graph.ymax
+        self.graph.x_ticks_major = self.graph.xmax / 3
+        self.graph.y_ticks_major = self.graph.ymax / 3
 
     def update_graph_from_log(self, test_ids):
         selected_tests =  []
@@ -763,6 +851,7 @@ class WindowTesting(Screen, Widget, TikTok):
             self.ids.button_home.disabled = 1
             self.is_graph_live = True
         else:
+            alert_box = Alert().popup("Please wait...", blocking=True)
             self.ids.button_graph_control.text = "START"
             self.ids.button_home.disabled = 0
             self.is_graph_live = False
@@ -779,6 +868,7 @@ class WindowTesting(Screen, Widget, TikTok):
             db_utils.update_test_paths(OUTPUT_MGR.output_test_number, canvas=OUTPUT_MGR.canvas_path, log_path=OUTPUT_MGR.log_path)
             self.manager.get_screen("layout_output").populate_output()
             self.manager.current = 'layout_output'
+            alert_box.popdown()
 
     def on_enter(self, *args):
         if OUTPUT_MGR.output_type_multi:
@@ -816,9 +906,11 @@ class WindowOutput(Screen):
         self.ids.graph_sample.source = OUTPUT_MGR.canvas_path
 
     def save_as_pdf(self):
+        alert_box = Alert().popup("Generating PDF...", blocking=True)
         pdf_file_name = generate_pdf(OUTPUT_MGR)
         OUTPUT_MGR.pdf_path = pdf_file_name
         db_utils.update_test_paths(OUTPUT_MGR.output_test_number, pdf_path=pdf_file_name)
+        alert_box.popdown()
 
     def save_as_excel(self):
         pass
@@ -838,6 +930,9 @@ class WindowCalibration(Screen, KeyboardManager):
     def __init__(self, **kw):
         super().__init__(**kw)
 
+        self.user_inputs = []
+        self.form_modified = False
+
         self.channel1 = 'ch1_adc'
         self.channel2 = 'ch2_adc'
         self.channel3 = 'ch3_adc'
@@ -850,11 +945,26 @@ class WindowCalibration(Screen, KeyboardManager):
         self.cal_channel = self.channel1
         self.cal_readings = []
 
-        self.sync_data_from_db()
+        self.init()
 
         uart_channel_subscribe(self.adc_read_fom_uart)
 
     @mainthread
+    def init(self):
+        self.user_inputs = [self.ids.ch1_decimal_point, self.ids.ch1_resolution,
+            self.ids.ch1_max_capacity, self.ids.ch1_cal_capacity, 
+            self.ids.ch3_decimal_point, self.ids.ch3_resolution, 
+            self.ids.ch3_cal_capacity, self.ids.ch3_max_capacity
+        ]
+        for input in self.user_inputs:
+            input.bind(text=lambda *args: self.update_form_modified_status(True))
+
+    def on_pre_enter(self):
+        self.sync_data_from_db()
+
+    def on_leave(self):
+        self.form_modified = False
+
     def sync_data_from_db(self):
         ch1_calibration_data = db_utils.fetch_calibration_for_channel('ch1') 
         self.ids.ch1_decimal_point.text = str(ch1_calibration_data[1])
@@ -867,6 +977,11 @@ class WindowCalibration(Screen, KeyboardManager):
         # self.ids.ch3_cal_span.text = str(ch3_calibration_data[6])
         self.ids.ch3_cal_capacity.text = str(ch3_calibration_data[4])
         self.ids.ch3_max_capacity.text = str(ch3_calibration_data[3])
+        self.form_modified = False
+
+    def update_form_modified_status(self, status=True):
+        print("[CALIBRATION]:", "Form modified")
+        self.form_modified = status
 
     def adc_read_fom_uart(self, info, *args):
         self.ids.ch1_raw_adc.text = str(info.get('ch1_adc', 0))
@@ -921,7 +1036,7 @@ class WindowCalibration(Screen, KeyboardManager):
             ch3_calculator.set_parameters()
 
     """ Function to read user input and save to database """
-    def save_calibration_data(self):
+    def save_calibration_data(self, go_home=False):
         ch1_decimal_point = self.ids.ch1_decimal_point.text
         ch1_resolution = self.ids.ch1_resolution.text
         ch1_max_capacity = self.ids.ch1_max_capacity.text
@@ -936,6 +1051,10 @@ class WindowCalibration(Screen, KeyboardManager):
         ch1_calculator.set_parameters()
         db_utils.update_calibration_for_channel('ch3', decimal=ch3_decimal_point, resolution=ch3_resolution, max_capacity=ch3_max_capacity, cal_capacity=ch3_cal_capacity)
         ch3_calculator.set_parameters()
+        self.form_modified = False
+        
+        if go_home:
+            NavigateScreen(self, 'layout_home')
 
     def reset_screen(self):
         inputs = [self.ids.ch1_decimal_point, self.ids.ch1_resolution, self.ids.ch1_max_capacity,
@@ -943,6 +1062,19 @@ class WindowCalibration(Screen, KeyboardManager):
             self.ids.ch3_cal_capacity, self.ids.ch3_max_capacity]
         for input in inputs:
             input.text = ""
+        self.form_modified = True
+
+    def navigate_home(self):
+        if not self.form_modified:
+            self.manager.current = 'layout_home'
+            return
+        Confirm().popup("Do you want to save the data before switching the screen?",
+            yes_btn_text="SAVE", 
+            no_btn_text="DISCARD",
+            yes_btn_cb=lambda: self.save_calibration_data(go_home=True),
+            no_btn_cb=lambda: NavigateScreen(self, 'layout_home'),
+            blocking=False
+        )
 
 
 """
@@ -966,10 +1098,47 @@ class WindowDiagnostics(Screen):
 class WindowCustomerEntry(Screen, KeyboardManager):
     def __init__(self, **kw):
         super().__init__(**kw)
+        self.CUSTOMER = 1
+        self.VENDOR = 2
+        self.client = self.CUSTOMER
+        self.is_view_mode = True
+        self.init()
         self.fetch_customer_list()
+        self.fetch_vendor_list()
+
+    @mainthread
+    def init(self):
+        self.ids.spinner_client.text = self.ids.spinner_client.values[0]
+        self.change_view_mode(is_viwe_mode=True)
+
+    def change_view_mode(self, is_viwe_mode=True):
+        spinner = self.ids.spinner_code if self.client == self.CUSTOMER else self.ids.spinner_vendor_code
+        if not is_viwe_mode and spinner.text not in spinner.values:
+            return
+        input_list = [self.ids.input_name, self.ids.input_address, self.ids.input_city, self.ids.input_pin,
+            self.ids.input_state, self.ids.input_tel1, self.ids.input_mob, self.ids.input_email]
+        for input in input_list:
+            input.readonly = is_viwe_mode
+            input.disabled = is_viwe_mode
+            input.background_color = [182, 182, 182, 0.3] if is_viwe_mode else [182, 182, 182, 0.9]
+        spinner.disabled = not is_viwe_mode
+        self.ids.spinner_client.disabled = not is_viwe_mode
+        self.is_view_mode = is_viwe_mode
+
+    def toggle_client(self, value):
+        self.client = self.VENDOR if value == 'Vendor' else self.CUSTOMER
+        if self.client == self.CUSTOMER:
+            self.ids.spinner_code.text = "<select customer code>"
+            HideWidget(self.ids.spinner_vendor_code, True)
+            HideWidget(self.ids.spinner_code, False)
+        else:
+            self.ids.spinner_vendor_code.text = "<select vendor code>"
+            HideWidget(self.ids.spinner_vendor_code, False)
+            HideWidget(self.ids.spinner_code, True)
 
     @mainthread
     def fetch_customer_list(self):
+        self.ids.text = 'Customer'
         conn = sqlite3.connect('./data.db')
         sql = f'''SELECT code FROM Customers;'''
         print(sql)
@@ -983,8 +1152,26 @@ class WindowCustomerEntry(Screen, KeyboardManager):
             self.ids.spinner_code.values = []
             self.ids.spinner_code.values = [str(row[0]) for row in rows]
 
-    def save(self):
-        code = self.ids.spinner_code.text
+    @mainthread
+    def fetch_vendor_list(self):
+        self.ids.text = 'Customer'
+        conn = sqlite3.connect('./data.db')
+        sql = f'''SELECT code FROM Vendors;'''
+        print(sql)
+        cur = conn.cursor()
+        try:
+            cur.execute(sql)
+        except sqlite3.OperationalError as e:
+            print(e)
+        else:
+            rows = cur.fetchall() or []
+            self.ids.spinner_vendor_code.values = []
+            self.ids.spinner_vendor_code.values = [str(row[0]) for row in rows]
+
+    def save(self) -> bool:
+        if self.is_view_mode: return
+        
+        code = self.ids.spinner_code.text if self.client == self.CUSTOMER else self.ids.spinner_vendor_code.text
         name = self.ids.input_name.text
         address = self.ids.input_address.text
         city = self.ids.input_city.text
@@ -997,35 +1184,48 @@ class WindowCustomerEntry(Screen, KeyboardManager):
 
         if not code or not name or not address or not city or not pin or not state or not email:
             print("[CUSTOMER ENTRY]:", "data missing")
-            return
+            Confirm().popup("Incomplete data cannot be saved. Do you want to discard the data?",
+                yes_btn_text="DISCARD", 
+                no_btn_text="NO",
+                yes_btn_cb=lambda: self.quit_editing_mode(save_before_quit=False),
+                blocking=False
+            )
+            return False
 
         conn = sqlite3.connect('./data.db')
         cur = conn.cursor()
-        sql = 'INSERT OR IGNORE INTO Customers VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        table = "Customers" if self.client == self.CUSTOMER else "Vendors"
+        sql = f'INSERT OR IGNORE INTO {table} VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        print(sql)
         cur.execute(sql, (code, name, address, city, pin, state, tel1, tel2, mob, email))
+        sql = f'''UPDATE OR IGNORE {table} SET name=?, address=?, pin=?, city=?, state=?, 
+            tel1=?, tel2=?, mob=?, email=? WHERE code=?;'''
+        cur.execute(sql, (name, address, city, pin, state, tel1, tel2, mob, email, code))
         conn.commit()
-
-        self.ids.spinner_code.disabled = False
+        self.change_view_mode(is_viwe_mode=True)
+        return True
 
     def edit(self):
-        self.ids.spinner_code.disabled = False
+        self.change_view_mode(is_viwe_mode=False)
 
     def delete(self):
-        code = self.ids.spinner_code.text
+        spinner = self.ids.spinner_code if self.client == self.CUSTOMER else self.ids.spinner_vendor_code
+        code = spinner.text
         conn = sqlite3.connect('./data.db')
         cur = conn.cursor()
-        sql = 'DELETE FROM Customers where code=?;'
+        sql = f'DELETE FROM {"Customers" if self.client == self.CUSTOMER else "Vendors"} where code=?;'
         cur.execute(sql, (code,))
         conn.commit()
         try:
-            self.ids.spinner_code.values.remove(code)
-            self.ids.spinner_code.text = self.ids.spinner_code.values[0]
+            spinner.values.remove(code)
+            spinner.text = self.ids.spinner_code.values[0]
         except (ValueError, IndexError):
             self.ids.spinner_code.text = '<select customer code>'
+        self.change_view_mode(is_viwe_mode=True)
 
     def new(self):
         conn = sqlite3.connect('./data.db')
-        sql = f'''SELECT code FROM Customers ORDER BY code DESC LIMIT 1;'''
+        sql = f'''SELECT code FROM {"Customers" if self.client == self.CUSTOMER else "Vendors"} ORDER BY code DESC LIMIT 1;'''
         print(sql)
         cur = conn.cursor()
         try:
@@ -1034,16 +1234,40 @@ class WindowCustomerEntry(Screen, KeyboardManager):
             print(e)
         else:
             row = cur.fetchone() or (0,)
-            next_id = str(int(row[0]) + 1).zfill(3)
-            spinner = self.ids.spinner_code
+            # row = re.sub("[^0-9]+", "", row[0]);
+            try: next_id = str(int(row[0]) + 1).zfill(3)
+            except ValueError: return
+            spinner = self.ids.spinner_code if self.client == self.CUSTOMER else self.ids.spinner_vendor_code
             if not next_id in spinner.values:
                 spinner.values.append(next_id)
-                spinner.text = spinner.values[-1]
+            spinner.text = spinner.values[-1]
             spinner.disabled = True
+            self.change_view_mode(is_viwe_mode=False)
+
+    def quit_editing_mode(self, save_before_quit=True, switch_page=False):
+        if save_before_quit:
+            if not self.save(): return
+        else:
+            spinner = self.ids.spinner_code if self.client == self.CUSTOMER else self.ids.spinner_vendor_code
+            self.populate_data(spinner.text)
+        self.change_view_mode(is_viwe_mode=True)
+        if switch_page: self.manager.current = 'layout_home'
+
+    def navigate_home(self):
+        if self.is_view_mode:
+            self.manager.current = 'layout_home'
+            return
+        Confirm().popup("Do you want to save the data before switching the screen?",
+            yes_btn_text="SAVE", 
+            no_btn_text="DISCARD",
+            yes_btn_cb=lambda: self.quit_editing_mode(save_before_quit=True, switch_page=True),
+            no_btn_cb=lambda: self.quit_editing_mode(save_before_quit=False, switch_page=True),
+            blocking=False
+        )
 
     def populate_data(self, code):
         conn = sqlite3.connect('./data.db')
-        sql = f'''SELECT * FROM Customers WHERE code=?;'''
+        sql = f'''SELECT * FROM {"Customers" if self.client == self.CUSTOMER else "Vendors"} WHERE code=?;'''
         print(sql)
         cur = conn.cursor()
         try:
@@ -1056,8 +1280,8 @@ class WindowCustomerEntry(Screen, KeyboardManager):
             # self.ids.input_code.text = row[0]
             self.ids.input_name.text = row[1]
             self.ids.input_address.text = row[2]
-            self.ids.input_pin.text = row[3]
-            self.ids.input_city.text = row[4]
+            self.ids.input_city.text = row[3]
+            self.ids.input_pin.text = row[4]
             self.ids.input_state.text = row[5]
             self.ids.input_tel1.text = row[6]
             # self.ids.input_tel2.text = row[7]
@@ -1070,7 +1294,27 @@ class WindowProductEntry(Screen, KeyboardManager):
     
     def __init__(self, **kw):
         super().__init__(**kw)
+        self.is_view_mode = True
+        self.init()
         self.fetch_product_list()
+
+    @mainthread
+    def init(self):
+        self.ids.spinner_code.text = '<select product code>'
+        self.change_view_mode(is_viwe_mode=True)
+
+    def change_view_mode(self, is_viwe_mode=True):
+        spinner = self.ids.spinner_code 
+        if not is_viwe_mode and spinner.text not in spinner.values:
+            return
+        input_list = [self.ids.input_name, self.ids.input_description, self.ids.input_compression, 
+            self.ids.input_low_limit, self.ids.input_high_limit, self.ids.input_size]
+        for input in input_list:
+            input.readonly = is_viwe_mode
+            input.disabled = is_viwe_mode
+            input.background_color = [182, 182, 182, 0.3] if is_viwe_mode else [182, 182, 182, 0.9]
+        spinner.disabled = not is_viwe_mode
+        self.is_view_mode = is_viwe_mode
 
     @mainthread
     def fetch_product_list(self):
@@ -1088,6 +1332,8 @@ class WindowProductEntry(Screen, KeyboardManager):
             self.ids.spinner_code.values = [str(row[0]) for row in rows]
 
     def save(self):
+        if self.is_view_mode: return
+
         code = self.ids.spinner_code.text
         name = self.ids.input_name.text
         description = self.ids.input_description.text
@@ -1098,16 +1344,31 @@ class WindowProductEntry(Screen, KeyboardManager):
 
         if not code or not name or not compression_value or not low_limit or not high_limit:
             print("[PRODUCT ENTRY]:", "data missing")
-            return
+            Confirm().popup("Incomplete data cannot be saved. Do you want to discard the data?",
+                yes_btn_text="DISCARD", 
+                no_btn_text="NO",
+                yes_btn_cb=lambda: self.quit_editing_mode(save_before_quit=False),
+                blocking=False
+            )
+            return False
 
         conn = sqlite3.connect('./data.db')
         cur = conn.cursor()
-        sql = 'INSERT OR IGNORE INTO Materials VALUES (?, ?, ?, ?, ?, ?)'
-        cur.execute(sql, (code, name, description, low_limit, high_limit, compression_value))
-        conn.commit()
+        sql1 = 'INSERT OR IGNORE INTO Materials VALUES (?, ?, ?, ?, ?, ?, ?)'
+        sql2 = f'''UPDATE OR IGNORE Materials SET name=?, desc=?, cmp=?, min=?,
+            max=?, size=? WHERE code=?;'''
+        try:
+            cur.execute(sql1, (code, name, description, compression_value, low_limit, high_limit, size))
+            cur.execute(sql2, (name, description, compression_value, low_limit, high_limit, size, code))
+            conn.commit()
+        except sqlite3.OperationalError as e:
+            print("[SQLITE3]:", "Error updating Materials database\n", e)
+        else:
+            self.change_view_mode(is_viwe_mode=True)
+        return True
 
     def edit(self):
-        self.ids.spinner_code.disabled = False
+        self.change_view_mode(is_viwe_mode=False)
 
     def delete(self):
         code = self.ids.spinner_code.text
@@ -1121,6 +1382,7 @@ class WindowProductEntry(Screen, KeyboardManager):
             self.ids.spinner_code.text = self.ids.spinner_code.values[0]
         except (ValueError, IndexError):
             self.ids.spinner_code.text = '<select product code>'
+        self.change_view_mode(is_viwe_mode=True)
 
     def new(self):
         conn = sqlite3.connect('./data.db')
@@ -1137,8 +1399,30 @@ class WindowProductEntry(Screen, KeyboardManager):
             spinner = self.ids.spinner_code
             if not next_id in spinner.values:
                 spinner.values.append(next_id)
-                spinner.text = spinner.values[-1]
+            spinner.text = spinner.values[-1]
             spinner.disabled = True
+            self.change_view_mode(is_viwe_mode=False)
+
+    def quit_editing_mode(self, save_before_quit=True, switch_page=False):
+        if save_before_quit:
+            if not self.save(): return
+        else:
+            spinner = self.ids.spinner_code
+            self.populate_data(spinner.text)
+        self.change_view_mode(is_viwe_mode=True)
+        if switch_page: self.manager.current = 'layout_home'
+
+    def navigate_home(self):
+        if self.is_view_mode:
+            self.manager.current = 'layout_home'
+            return
+        Confirm().popup("Do you want to save the data before switching the screen?",
+            yes_btn_text="SAVE", 
+            no_btn_text="DISCARD",
+            yes_btn_cb=lambda: self.quit_editing_mode(save_before_quit=True, switch_page=True),
+            no_btn_cb=lambda: self.quit_editing_mode(save_before_quit=False, switch_page=True),
+            blocking=False
+        )
 
     def populate_data(self, code):
         conn = sqlite3.connect('./data.db')
@@ -1154,12 +1438,12 @@ class WindowProductEntry(Screen, KeyboardManager):
             print(row)
             self.ids.input_name.text = str(row[1])
             self.ids.input_description.text = str(row[2])
-            self.ids.input_compression.text = ''    #  str(row[3])
-            self.ids.input_low_limit.text = str(row[3])
-            self.ids.input_high_limit.text = str(row[4])
-            self.ids.input_size.text = str(row[5])
+            self.ids.input_compression.text = str(row[3])
+            self.ids.input_low_limit.text = str(row[4])
+            self.ids.input_high_limit.text = str(row[5])
+            self.ids.input_size.text = str(row[6])
 
-
+from random import randint
 class WindowTrial(Screen):
     def __init__(self, **kw) -> None:
         super().__init__(**kw)
@@ -1196,18 +1480,25 @@ class WindowTrial(Screen):
             sorted_order="ASC",
             elevation=2,
         )
-        # self.data_tables.bind(on_row_press=self.on_row_press)
+        self.data_tables.bind(on_row_press=self.on_row_press)
         self.data_tables.bind(on_check_press=self.on_check_press)
         self.add_widget(self.data_tables)
         self.populate_data_table()
 
     def get_checked_indices(self):
+        checked_rows = self.data_tables.get_row_checks()
+        try: checked_indices = [row[0] for row in checked_rows]
+        except IndexError: return []
+        return checked_indices
         cols_num = len(self.data_tables.column_data)
         row_num = len(self.data_tables.row_data)
+        for key in self.data_tables.__dict__.keys():
+            print({key: self.data_tables.__dict__[key]})
+        print(self.data_tables['Pagination'])
         checked_indices = []
         for i in reversed(range(row_num)):
             cell_row = self.data_tables.table_data.view_adapter.get_visible_view(i*cols_num)
-            if cell_row.ids.check.state != 'normal':
+            if cell_row and cell_row.ids.check.state != 'normal':
                 checked_indices.append(i)
         return checked_indices
 
@@ -1215,7 +1506,7 @@ class WindowTrial(Screen):
         checked_indices = self.get_checked_indices()
         for index in checked_indices:
             print("[DELETE]:", self.data_tables.row_data[index])
-            self.data_tables.row_data.pop(index)
+            # self.data_tables.row_data.pop(index)
 
     def populate_data_table(self):
         conn = sqlite3.connect('./data.db')
@@ -1265,7 +1556,7 @@ class WindowTrial(Screen):
         pass
 
     def on_row_press(self, instance_table, instance_row):
-        pass
+        return bool(randint(0, 1))
 
 """
     Class to manage all screens
@@ -1277,6 +1568,10 @@ class WindowManager(ScreenManager):
 
 # class CTControlApp(App, GPIOManager):
 class CTControlApp(MDApp, GPIOManager):
+    def quit(self):
+        Confirm().popup("Do you want to exit the application?", yes_btn_text="EXIT", no_btn_text="NO",
+            yes_btn_cb=lambda: self.stop(), blocking=False)
+    
     def build(self):
         # Window.clearcolor = (205/255, 205/255, 205/255, 1)
         Window.bind(on_request_close=self.on_request_close)
@@ -1306,6 +1601,7 @@ class CTControlApp(MDApp, GPIOManager):
         GPIO.cleanup()
 
 
-application = CTControlApp()
-application.run()
-application.on_request_close()
+if __name__  == '__main__':
+    application = CTControlApp()
+    application.run()
+    application.on_request_close()

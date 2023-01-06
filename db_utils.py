@@ -55,3 +55,5 @@ if __name__ == '__main__':
     # fetch_calibration_for_channel('ch12')
     # fetch_calibration_for_channel('ch2')
     update_test_paths('003', pdf_path='/tmp/098475364.png')
+
+

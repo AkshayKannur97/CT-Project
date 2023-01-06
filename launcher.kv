@@ -34,6 +34,14 @@ WindowManager:
     size_hint : (0.1369, 0.0689)
     font_name : 'DejaVuSans'
 
+<MDActionButton1@MDFlatButton>
+    font_name: 'res/fonts/ZenDots-Regular.ttf'
+    font_size: 20
+    size_hint: 0.01369*8, 0.03448*1
+    theme_text_color: "Custom"
+    md_bg_color : "##85edd977"
+    text_color : 1, 1, 1, 1
+
 <LabelH3@Label>
     font_size : 12
     size_hint : (0.4, 0.0689)
@@ -43,7 +51,6 @@ WindowManager:
     font_size : 14
     size_hint : (0.1369, 0.0689)
     font_name : 'DejaVuSans'
-
 
 <WindowSplash>
     name: "layout_splash"
@@ -159,39 +166,23 @@ WindowManager:
             background_color :1, 1, 1, 0
             color : 1, 1, 1, 1
 
-        MyButton :
-            font_size : 20
+        MDActionButton1:
             text: "Auto"
-            pos_hint : {"x":0.01369*1.5, "y":0.03448*1}
-            size_hint:0.01369*8, 0.03448*1
-            background_color :1, 1, 1, .1 
-            color : 1, 1, 1, 1
-            on_press: app.root.current = "layout_tc1"
-        MyButton :
-            font_size : 20
+            pos_hint : {"x":0.2, "y": 0.005}
+            on_release: app.root.current = "layout_tc1"
+        MDActionButton1:
             text: "Tests"
-            pos_hint : {"x":0.01369*15, "y":0.03448*1}
-            size_hint:0.01369*8, 0.03448*1
-            background_color :1, 1, 1, 0 
-            color : 1, 1, 1, 1
-            on_press: app.root.current = "layout_trial"
-        MyButton :
-            font_size : 20
+            pos_hint : {"x":0.35, "y": 0.005}
+            on_release: app.root.current = "layout_trial"
+        MDActionButton1:
             text: "Menu"
-            pos_hint : {"x":0.01369*29.5, "y":0.03448*1}
-            size_hint:0.01369*8, 0.03448*1
-            # on_press: app.root.current = "layout_menu"
-            on_press: app.root.current = "layout_calibration"
-            background_color :1, 1, 1, 0 
-            color : 1, 1, 1, 1
-        MyButton :
-            font_size : 20
+            pos_hint : {"x":0.5, "y": 0.005}
+            on_release: app.root.current = "layout_calibration"
+        MDActionButton1 :
             text: "Exit"
-            pos_hint : {"x":0.01369*66, "y":0.03448*1}
-            size_hint:0.01369*8, 0.03448*0.5
-            background_color :1, 1, 1, 0   
-            color : 1, 1, 1, 1
-            on_press: app.stop()
+            md_bg_color : "##85edd999"
+            pos_hint : {"x":0.85, "y": 0.005}
+            on_release: app.quit()
         MyButton :
             id: label_displacement
             font_size : 80
@@ -482,7 +473,7 @@ WindowManager:
                 color : 1, 1, 1, 1
             Label:
                 id: label_name
-                text: "Name"
+                text: ""
                 size_hint: 0.54, 0.07
                 pos_hint : {"x":0.45, "y":0.6}
                 halign: 'center'
@@ -551,7 +542,7 @@ WindowManager:
                 on_press: root.populate_material_spinner()
             Label :
                 id: label_product_name
-                text: "Product name"
+                text: ""
                 size_hint: 0.5, 0.07
                 pos_hint : {"x":0.45, "y":0.2}
                 background_color :1, 1, 0, 0.3 
@@ -651,13 +642,13 @@ WindowManager:
                 pos_hint : {"x":0.45, "y":0.9}
                 background_color :1, 1, 1, 1
                 color : 1, 1, 1, 1
+                readonly: 1
+                disabled: 1
             TextInput :
                 id: input_mid
                 hint_text: "Enter M/c ID"
                 input_type: "text"
                 multiline: 0
-                # is_focusable: 1
-                # on_cursor: root.enable_next_button()
                 size_hint: 0.5, 0.07
                 pos_hint : {"x":0.45, "y":0.8}
                 background_color :1, 1, 1, 1
@@ -667,9 +658,6 @@ WindowManager:
                 hint_text: "Enter Lot No"
                 input_type: "text"
                 multiline: 0
-                is_focusable: 1
-                keyboard:
-                on_cursor: root.enable_next_button()
                 size_hint: 0.5, 0.07
                 pos_hint : {"x":0.45, "y":0.7}
                 background_color :1, 1, 1, 1
@@ -677,18 +665,16 @@ WindowManager:
             TextInput :
                 id: input_iid
                 hint_text: "Enter INV ID"
-                input_type: "number"
+                input_type: "text"
                 multiline: 0
-                is_focusable: 1
-                keyboard:
-                on_cursor: root.enable_next_button()
                 size_hint: 0.5, 0.07
                 pos_hint : {"x":0.45, "y":0.6}
                 background_color :1, 1, 1, 1
                 color : 1, 1, 1, 1
-            Label:
-                id: label_product_size
+            TextInput:
+                id: input_product_size
                 hint_text: "<size>"
+                multiline: 0
                 size_hint: 0.5, 0.07
                 pos_hint : {"x":0.45, "y":0.5}
                 background_color :1, 1, 1, 1
@@ -696,184 +682,25 @@ WindowManager:
             TextInput:
                 id: input_remarks
                 hint_text: "Enter remarks"
-                input_type: "number"
-                multiline: 0
-                is_focusable: 1
-                keyboard:
+                input_type: "text"
+                multiline: 1
                 size_hint: 0.5, 0.07
                 pos_hint : {"x":0.45, "y":0.4}
                 background_color :1, 1, 1, 1
                 color : 1, 1, 1, 1
 
-        # FloatLayout:
-        #     size_hint: 1/2, 0.8
-        #     pos_hint: {'x': 1/2, 'y': 0.1}
-        #     canvas.before :
-        #         Color:  
-        #             rgba: 0, 0, 0, .05
-        #         Line:
-        #             width: 5
-        #             rectangle: self.x, self.y, self.width, self.height
-
-        #     LabelH3:
-        #         text: "CODE"
-        #         pos_hint : {"x":0.05, "y":0.9}
-        #         halign: 'center'
-        #         background_color :182, 182, 182, 0.3
-        #         canvas.before:
-        #             Color:
-        #                 rgba: self.background_color
-        #             Rectangle:
-        #                 size: self.size
-        #                 pos: self.pos
-        #     LabelH3:
-        #         text: "NAME"
-        #         pos_hint : {"x":0.05, "y":0.8}
-        #         halign: 'center'
-        #         background_color :182, 182, 182, 0.3
-        #         canvas.before:
-        #             Color:
-        #                 rgba: self.background_color
-        #             Rectangle:
-        #                 size: self.size
-        #                 pos: self.pos
-        #     LabelH3:
-        #         text: "DESCRIPTION"
-        #         pos_hint : {"x":0.05, "y":0.7}
-        #         halign: 'center'
-        #         background_color :182, 182, 182, 0.3
-        #         canvas.before:
-        #             Color:
-        #                 rgba: self.background_color
-        #             Rectangle:
-        #                 size: self.size
-        #                 pos: self.pos
-        #     LabelH3:
-        #         text: "SIZE"
-        #         pos_hint : {"x":0.05, "y":0.6}
-        #         halign: 'center'
-        #         background_color :182, 182, 182, 0.3
-        #         canvas.before:
-        #             Color:
-        #                 rgba: self.background_color
-        #             Rectangle:
-        #                 size: self.size
-        #                 pos: self.pos
-
-        #     Spinner:
-        #         id: spinner_product_master
-        #         text: "Select Product"
-        #         size_hint: 0.5, 0.07
-        #         pos_hint : {"x":0.45, "y":0.9}
-        #         halign: 'center'
-        #         background_color :1, 1, 0, 0.3 
-        #         color : 1, 1, 1, 1
-        #         on_text: root.product_code_selection()
-        #         on_press: root.populate_material_spinner()
-        #     Label :
-        #         id: label_product_name
-        #         text: "Product name"
-        #         size_hint: 0.5, 0.07
-        #         pos_hint : {"x":0.45, "y":0.8}
-        #         background_color :1, 1, 0, 0.3 
-        #         color : 1, 1, 1, 1
-        #     Label:
-        #         id: label_product_description
-        #         text: "Product Description"
-        #         size_hint: 0.5, 0.07
-        #         pos_hint : {"x":0.45, "y":0.7}
-        #         halign: 'center'
-        #         background_color :1, 1, 0, 0.3 
-        #         color : 1, 1, 1, 1
-        #     Label:
-        #         id: label_product_size
-        #         text: "Size - Product"
-        #         size_hint: 0.5, 0.07
-        #         pos_hint : {"x":0.45, "y":0.6}
-        #         halign: 'center'
-        #         background_color :1, 1, 0, 0.3 
-        #         color : 1, 1, 1, 1
-
-        #     LabelH3:
-        #         text: "MIN LIMIT"
-        #         pos_hint : {"x":0.05, "y":0.5}
-        #         halign: 'center'
-        #         background_color :182, 182, 182, 0.3
-        #         canvas.before:
-        #             Color:
-        #                 rgba: self.background_color
-        #             Rectangle:
-        #                 size: self.size
-        #                 pos: self.pos
-            
-        #     LabelH3:
-        #         # id: label_max
-        #         text: "MAX LIMIT"
-        #         pos_hint : {"x":0.05, "y":0.4}
-        #         halign: 'center'
-        #         background_color :182, 182, 182, 0.3 
-        #         canvas.before:
-        #             Color:
-        #                 rgba: self.background_color
-        #             Rectangle:
-        #                 size: self.size
-        #                 pos: self.pos
-        #     Label:
-        #         id: label_product_min
-        #         text: "Min Limit - Product"
-        #         size_hint: 0.5, 0.07
-        #         pos_hint : {"x":0.45, "y":0.5}
-        #         halign: 'center'
-        #         background_color :1, 1, 0, 0.3 
-        #         color : 1, 1, 1, 1
-            
-        #     Label:
-        #         id: label_product_max
-        #         text: "Max Limit - Product"
-        #         size_hint: 0.5, 0.07
-        #         pos_hint : {"x":0.45, "y":0.4}
-        #         halign: 'center'
-        #         background_color :1, 1, 0, 0.3 
-        #         color : 1, 1, 1, 1 
-        
-        MyButton :
+        MDActionButton1:
             text: "HOME"
-            font_size : 20
-            pos_hint : {"x":0.01369*13, "y":0.03448*.1}
-            background_color :200/255, 200/255, 200/255, 0.3
-            on_press: app.root.current = "layout_home"
-            color : 1, 1, 1, 1
-        # MyButton :
-        #     text: "EDIT"
-        #     font_size : 20
-        #     pos_hint : {"x":0.01369*25, "y":0.03448*.1}
-        #     background_color :200/255, 200/255, 200/255, 0.3
-        #     color : 1, 1, 1, 1
-        # MyButton :
-        #     text: "SAVE"
-        #     font_size : 20
-        #     pos_hint : {"x":0.01369*37, "y":0.03448*.1}
-        #     background_color :200/255, 200/255, 200/255, 0.3
-        #     color : 1, 1, 1, 1
-        #     on_press: root.save_to_db()
-        # MyButton :
-        #     text: "BACK"
-        #     font_size : 20
-        #     on_press: app.root.current = "layout_home"
-        #     pos_hint : {"x":0.01369*49, "y":0.03448*.1}
-        #     background_color :200/255, 200/255, 200/255, 0.3
-        #     color : 1, 1, 1, 1
-        MyButton :
+            pos_hint : {"x":0.2, "y":0.03448*.1}
+            on_release: root.navigate_home()
+        MDActionButton1:
+            id: button_start
             text: "START"
-            font_size : 20
-            #on_press: root.confirm()
             on_press: root.manager.get_screen("layout_testing").control_graph()
             on_release: root.submit()
-            pos_hint : {"x":0.01369*61, "y":0.03448*.1}
-            background_color :200/255, 200/255, 200/255, 0.3
-            color : 1, 1, 1, 1
-        MyButton:
-            background_color :0, 0, 0, 0
+            pos_hint : {"x":0.85, "y":0.03448*.1}
+        MDActionButton1:
+            md_bg_color :0, 0, 0, 0
         
     
     # ******* Reduced 1 cell in X & Y for calucation for boundary thickness*********            
@@ -1716,33 +1543,24 @@ WindowManager:
                 width: 0.5
                 rectangle: self.x, self.y, self.width, self.height
 
-        Button:
+        MDActionButton1:
             text: "SAVE"
-            size_hint: 0.1, 0.8
             pos_hint : {"x":0.2, "y":0.1}
-            halign: 'center'
-            background_color :182, 182, 182, 0.3
-            on_press: root.save_calibration_data()
-        Button:
+            on_release: root.save_calibration_data()
+        MDActionButton1:
             text: "RESET"
-            size_hint: 0.1, 0.8
             pos_hint : {"x":0.35, "y":0.1}
-            halign: 'center'
-            background_color :182, 182, 182, 0.3
-            on_press: root.reset_screen()
+            on_release: root.reset_screen()
         # Button:
         #     text: "DISCARD"
         #     size_hint: 0.1, 0.8
         #     pos_hint : {"x":0.5, "y":0.1}
         #     halign: 'center'
         #     background_color :182, 182, 182, 0.3
-        Button:
+        MDActionButton1:
             text: "HOME"
-            size_hint: 0.1, 0.8
-            pos_hint : {"x":0.5, "y":0.1}
-            halign: 'center'
-            background_color :182, 182, 182, 0.3
-            on_press: app.root.current = "layout_home"
+            pos_hint : {"x":0.85, "y":0.1}
+            on_release: root.navigate_home()
         # Button:
         #     text: "BACK"
         #     size_hint: 0.1, 0.8
@@ -1869,6 +1687,7 @@ WindowManager:
                 size_hint: 0.175, 0.1
                 pos_hint : {"x":0.275, "y":0.7}
                 input_type: "number"
+                input_filter: 'int'
                 halign: "center"
                 multiline: 0
             TextInput:
@@ -1877,6 +1696,7 @@ WindowManager:
                 size_hint: 0.175, 0.1
                 pos_hint : {"x":0.275, "y":0.6}
                 input_type: "number"
+                input_filter: 'int'
                 halign: "center"
                 multiline: 0
             TextInput:
@@ -1959,6 +1779,7 @@ WindowManager:
                 size_hint: 0.175, 0.1
                 pos_hint : {"x":0.775, "y":0.7}
                 input_type: "number"
+                input_filter: 'int'
                 halign: "center"
                 multiline: 0
             TextInput:
@@ -1967,6 +1788,7 @@ WindowManager:
                 size_hint: 0.175, 0.1
                 pos_hint : {"x":0.775, "y":0.6}
                 input_type: "number"
+                input_filter: 'int'
                 halign: "center"
                 multiline: 0
             # TextInput:
@@ -2315,47 +2137,27 @@ WindowManager:
                 width: 0.5
                 rectangle: self.x, self.y, self.width, self.height
 
-        Button:
+        MDActionButton1:
             id: button_new
             text: "NEW"
-            font_size: 24
-            size_hint: 0.15, 0.8
-            pos_hint : {"x":0.05, "y":0.1}
-            halign: 'center'
-            background_color :182, 182, 182, 0.3
-            on_press: root.new()
-        Button:
+            pos_hint: {"x":0.2, "y":0.1}
+            on_release: root.new()
+        MDActionButton1:
             text: "EDIT"
-            font_size: 24
-            size_hint: 0.15, 0.8
-            pos_hint : {"x":0.25, "y":0.1}
-            halign: 'center'
-            background_color :182, 182, 182, 0.3
-            on_press: root.edit()
-        Button:
+            pos_hint: {"x":0.35, "y":0.1}
+            on_release: root.edit()
+        MDActionButton1:
             text: "SAVE"
-            font_size: 24
-            size_hint: 0.15, 0.8
-            pos_hint : {"x":0.45, "y":0.1}
-            halign: 'center'
-            background_color :182, 182, 182, 0.3
-            on_press: root.save()
-        Button:
+            pos_hint: {"x":0.5, "y":0.1}
+            on_release: root.save()
+        MDActionButton1:
             text: "DELETE"
-            font_size: 24
-            size_hint: 0.15, 0.8
             pos_hint : {"x":0.65, "y":0.1}
-            halign: 'center'
-            background_color :182, 182, 182, 0.3
             on_release: root.delete()
-        Button:
+        MDActionButton1:
             text: "HOME"
-            font_size: 24
-            size_hint: 0.15, 0.8
-            pos_hint : {"x":0.85, "y":0.1}
-            halign: 'center'
-            background_color :182, 182, 182, 0.3
-            on_press: app.root.current = "layout_home"
+            pos_hint: {"x":0.85, "y":0.1}
+            on_release: root.navigate_home()
 
     FloatLayout:
         size_hint: 1, 0.8
@@ -2437,8 +2239,21 @@ WindowManager:
         #     multiline: 0
         #     background_color :182, 182, 182, 0.3
         Spinner:
+            id: spinner_client
+            pos_hint: {'center_x': 0.2, 'center_y': 1}
+            size_hint: 0.2, 0.1
+            values: ['Customer', 'Vendor']
+            text: "<Customer/Vendor>"
+            on_text: root.toggle_client(self.text)
+        Spinner:
             id: spinner_code
             text: "<select customer code>"
+            size_hint: 0.5, 0.1
+            pos_hint : {"x":0.4, "y":0.9}
+            on_text: root.populate_data(self.text)
+        Spinner:
+            id: spinner_vendor_code
+            text: "<select vendor code>"
             size_hint: 0.5, 0.1
             pos_hint : {"x":0.4, "y":0.9}
             on_text: root.populate_data(self.text)
@@ -2490,6 +2305,7 @@ WindowManager:
         TextInput:
             id: input_city
             hint_text: "Ney York"
+            multiline: 0
             font_size: 16
             size_hint: 0.5, 0.1
             pos_hint : {"x":0.4, "y":0.55}
@@ -2511,6 +2327,7 @@ WindowManager:
             size_hint: 0.5, 0.1
             pos_hint: {"x":0.4, "y":0.45}
             multiline: 0
+            input_type: 'number'
             input_filter: 'int'
             halign: 'center'
             background_color :182, 182, 182, 0.3
@@ -2548,6 +2365,7 @@ WindowManager:
             size_hint: 0.5, 0.1
             pos_hint : {"x":0.4, "y":0.25}
             multiline: 0
+            input_type: 'tel'
             input_filter: 'int'
             halign: 'center'
             background_color :182, 182, 182, 0.3
@@ -2565,6 +2383,8 @@ WindowManager:
         #     font_size: 16
         #     size_hint: 0.5, 0.1
         #     pos_hint : {"x":0.7, "y":0.15}
+        #     multiline: 0
+        #     input_type: 'tel'
         #     input_filter: 'int'
         #     halign: 'center'
         #     background_color :182, 182, 182, 0.3
@@ -2584,8 +2404,9 @@ WindowManager:
             size_hint: 0.5, 0.1
             pos_hint : {"x":0.4, "y":0.15}
             multiline: 0
-            halign: 'center'
+            input_type: 'tel'
             input_filter: 'int'
+            halign: 'center'
             background_color :182, 182, 182, 0.3
         Label:
             text: "E-MAIL"
@@ -2603,6 +2424,7 @@ WindowManager:
             size_hint: 0.5, 0.1
             pos_hint : {"x":0.4, "y":0.05}
             multiline: 0
+            input_type: 'mail'
             halign: 'center'
             background_color :182, 182, 182, 0.3
 
@@ -2638,47 +2460,27 @@ WindowManager:
                 width: 0.5
                 rectangle: self.x, self.y, self.width, self.height
 
-        Button:
+        MDActionButton1:
             id: button_new
             text: "NEW"
-            font_size: 24
-            size_hint: 0.15, 0.8
-            pos_hint : {"x":0.05, "y":0.1}
-            halign: 'center'
-            background_color :182, 182, 182, 0.3
-            on_press: root.new()
-        Button:
+            pos_hint: {"x":0.2, "y":0.1}
+            on_release: root.new()
+        MDActionButton1:
             text: "EDIT"
-            font_size: 24
-            size_hint: 0.15, 0.8
-            pos_hint : {"x":0.25, "y":0.1}
-            halign: 'center'
-            background_color :182, 182, 182, 0.3
-            on_press: root.edit()
-        Button:
+            pos_hint: {"x":0.35, "y":0.1}
+            on_release: root.edit()
+        MDActionButton1:
             text: "SAVE"
-            font_size: 24
-            size_hint: 0.15, 0.8
-            pos_hint : {"x":0.45, "y":0.1}
-            halign: 'center'
-            background_color :182, 182, 182, 0.3
-            on_press: root.save()
-        Button:
+            pos_hint: {"x":0.5, "y":0.1}
+            on_release: root.save()
+        MDActionButton1:
             text: "DELETE"
-            font_size: 24
-            size_hint: 0.15, 0.8
-            pos_hint : {"x":0.65, "y":0.1}
-            halign: 'center'
-            background_color :182, 182, 182, 0.3
+            pos_hint: {"x":0.65, "y":0.1}
             on_release: root.delete()
-        Button:
+        MDActionButton1:
             text: "HOME"
-            font_size: 24
-            size_hint: 0.15, 0.8
-            pos_hint : {"x":0.85, "y":0.1}
-            halign: 'center'
-            background_color :182, 182, 182, 0.3
-            on_press: app.root.current = "layout_home"
+            pos_hint: {"x":0.85, "y":0.1}
+            on_release: root.navigate_home()
 
     FloatLayout:
         size_hint: 1, 0.8
@@ -2804,6 +2606,8 @@ WindowManager:
         TextInput:
             id: input_compression
             hint_text: "<cmp value>"
+            multiline: 0
+            input_type: 'number'
             font_size: 16
             size_hint: 0.5, 0.1
             pos_hint : {"x":0.4, "y":0.55}
@@ -2825,6 +2629,7 @@ WindowManager:
             size_hint: 0.5, 0.1
             pos_hint: {"x":0.4, "y":0.45}
             multiline: 0
+            input_type: 'number'
             input_filter: 'int'
             halign: 'center'
             background_color :182, 182, 182, 0.3
@@ -2844,6 +2649,7 @@ WindowManager:
             size_hint: 0.5, 0.1
             pos_hint : {"x":0.4, "y":0.35}
             multiline: 0
+            input_type: 'number'
             halign: 'center'
             background_color :182, 182, 182, 0.3
         Label:
@@ -2862,7 +2668,7 @@ WindowManager:
             size_hint: 0.5, 0.1
             pos_hint : {"x":0.4, "y":0.25}
             multiline: 0
-            input_filter: 'int'
+            input_type: 'text'
             halign: 'center'
             background_color :182, 182, 182, 0.3
     
@@ -2891,19 +2697,17 @@ WindowManager:
 
     # MDDataTable:
     # table added in py file
- 
-    MDFlatButton:
+         
+    MDActionButton1:
         # https://kivymd.readthedocs.io/en/1.1.1/components/dialog/#kivymd.uix.dialog.dialog.MDDialog.type
         text: "GENERATE REPORT"
-        pos_hint: {'center_x': .5, 'center_y': .05}
-        on_press: root.generate_report()
-    MDFlatButton:
+        pos_hint: {'x': .2, 'y': .005}
+        on_release: root.generate_report()
+    MDActionButton1:
         text: "DELETE"
-        pos_hint: {'center_x': .6, 'center_y': .05}
-        background_color: 0, 1, 1, 0.5
-        on_press: root.delete_rows()
-    MDFlatButton:
+        pos_hint: {'x': .5, 'y': .005}
+        on_release: root.delete_rows()
+    MDActionButton1:
         text: "HOME"
-        pos_hint: {'center_x': .7, 'center_y': .05}
-        background_color: 0, 1, 1, 0.5
-        on_press: app.root.current = "layout_home"
+        pos_hint: {'x': .85, 'y': .005}
+        on_release: app.root.current = "layout_home"
